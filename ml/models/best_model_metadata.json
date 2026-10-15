@@ -1,0 +1,54 @@
+{
+  "model_file": "best_model.keras",
+  "model_path": "C:\\Users\\MI\\OneDrive\\Desktop\\food-quality project\\ml\\models\\best_model.keras",
+  "architecture": "Best Selected Model (CNN Baseline)",
+  "created_at": "2026-10-14T20:40:18.763329+00:00",
+  "model_size_mb": 1.91,
+  "input_shape": [
+    224,
+    224,
+    3
+  ],
+  "canonical_classes": [
+    "Fresh",
+    "Spoiled"
+  ],
+  "class_to_idx": {
+    "Fresh": 0,
+    "Spoiled": 1
+  },
+  "idx_to_class": {
+    "0": "Fresh",
+    "1": "Spoiled"
+  },
+  "hyperparameters": {
+    "learning_rate": 0.001,
+    "batch_size": 32,
+    "epochs": 15,
+    "optimizer": "Adam",
+    "loss": "categorical_crossentropy"
+  },
+  "framework_versions": {
+    "tensorflow": "2.22.0-rc0",
+    "keras": "3.16.0.dev2026101404"
+  },
+  "device_info": {
+    "device_type": "CPU",
+    "device_count": 1,
+    "device_names": [
+      "CPU:0"
+    ]
+  },
+  "dataset_info": {},
+  "evaluation_metrics": {
+    "macro_f1": 0.942,
+    "accuracy": 0.945,
+    "val_loss": 0.182,
+    "fresh_f1": 0.948,
+    "spoiled_f1": 0.936
+  },
+  "extra_info": {
+    "status": "Active selected production checkpoint"
+  },
+  "food_safety_disclaimer": "This model estimates visual similarity to Fresh and Spoiled training labels. Its predictions and confidence scores do not establish microbiological safety, contamination, toxicity, or suitability for consumption. Do not rely on this system as the sole basis for food safety decisions."
+}

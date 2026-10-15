@@ -1,0 +1,20 @@
+{
+  "status": "FAILED",
+  "timestamp": "2026-10-14T12:57:56.806992+00:00",
+  "raw_data_dir": "C:\\Users\\MI\\OneDrive\\Desktop\\food-quality project\\ml\\data\\raw",
+  "total_files_scanned": 0,
+  "valid_images_count": 0,
+  "corrupted_images_count": 0,
+  "unknown_label_files_count": 0,
+  "corrupted_files": [],
+  "unknown_folders": [],
+  "class_counts": {
+    "Fresh": 0,
+    "Spoiled": 0
+  },
+  "extensions_found": {},
+  "summary_messages": [
+    "No images with supported extensions {'.jpg', '.webp', '.jpeg', '.bmp', '.png'} found in C:\\Users\\MI\\OneDrive\\Desktop\\food-quality project\\ml\\data\\raw"
+  ],
+  "is_valid_for_split": false
+}
