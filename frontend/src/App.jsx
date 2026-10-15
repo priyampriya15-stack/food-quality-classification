@@ -359,7 +359,7 @@ function MainApp() {
         )}
 
         {activeTab === 'about' && (
-          <AboutPage onNavigateTab={handleTabChange} />
+          <AboutPage onNavigateTab={handleTabChange} modelsInfo={modelsInfo} />
         )}
       </main>
 
