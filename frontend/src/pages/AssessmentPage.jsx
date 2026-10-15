@@ -381,6 +381,9 @@ export default function AssessmentPage({ onPredictionSuccess, modelsInfo, onNavi
         </div>
       </div>
 
+      {/* Food Safety & Limitations Information Panel */}
+      <FoodSafetyDisclaimer compact />
+
       {/* WebRTC Camera Modal */}
       <CameraModal
         isOpen={isCameraOpen}

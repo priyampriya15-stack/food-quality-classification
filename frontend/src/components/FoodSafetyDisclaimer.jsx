@@ -4,11 +4,14 @@ import { AlertTriangle } from 'lucide-react';
 export default function FoodSafetyDisclaimer({ compact = false }) {
   if (compact) {
     return (
-      <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-start gap-2.5">
+      <div className="p-3 sm:p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-start gap-2.5 shadow-sm">
         <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-        <p className="leading-relaxed">
-          <strong className="text-amber-200">Safety Notice:</strong> Visual appearance alone cannot determine microbiological food safety or pathogen contamination. This AI classifier is an experimental assistive tool.
-        </p>
+        <div className="leading-relaxed">
+          <span className="font-semibold text-amber-200">Food Safety &amp; Limitations Notice: </span>
+          <span className="text-amber-300/90">
+            This model estimates visual similarity to Fresh and Spoiled training labels. Its predictions and confidence scores do not establish microbiological safety, contamination, toxicity, or suitability for consumption. Do not rely on this system as the sole basis for food safety decisions.
+          </span>
+        </div>
       </div>
     );
   }

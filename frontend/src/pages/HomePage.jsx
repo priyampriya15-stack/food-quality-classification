@@ -10,7 +10,6 @@ import {
   Activity, 
   BarChart2 
 } from 'lucide-react';
-import FoodSafetyDisclaimer from '../components/FoodSafetyDisclaimer';
 
 import showcaseTomatoImg from '../assets/showcase_tomato.jpg';
 
@@ -169,8 +168,6 @@ export default function HomePage({ setActiveTab, analyticsData, healthStatus }) 
         </div>
       </section>
 
-      {/* Safety Disclaimer */}
-      <FoodSafetyDisclaimer />
 
       {/* Stats Counter Bar */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
