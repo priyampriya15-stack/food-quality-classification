@@ -16,6 +16,7 @@ PROJECT_ROOT = BACKEND_DIR.parent
 class Settings(BaseSettings):
     APP_NAME: str = "Food Quality Classification API"
     APP_VERSION: str = "1.0.0"
+    ENVIRONMENT: str = "development"
     DEBUG: bool = True
     HOST: str = "127.0.0.1"
     PORT: int = 8000
@@ -46,7 +47,8 @@ class Settings(BaseSettings):
     PERSIST_PREDICTION_IMAGES: bool = True
 
     # Authentication & Security
-    JWT_SECRET_KEY: str = "foodquality-ai-production-secure-jwt-secret-key-32bytes-min-2026"
+    # Default is for local development only. Production must configure JWT_SECRET_KEY via environment variable.
+    JWT_SECRET_KEY: str = "dev-insecure-secret-key-change-in-production-min-32-chars"
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
     RESET_TOKEN_EXPIRE_MINUTES: int = 30     # 30 minutes
@@ -57,6 +59,16 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    @field_validator("JWT_SECRET_KEY", mode="after")
+    @classmethod
+    def validate_jwt_secret_key(cls, v: str) -> str:
+        key = v.strip() if v else ""
+        if len(key) < 32:
+            raise ValueError(
+                "JWT_SECRET_KEY must be at least 32 characters long for secure HS256 signing."
+            )
+        return key
+
     @field_validator("CORS_ORIGINS", mode="after")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
@@ -65,12 +77,13 @@ class Settings(BaseSettings):
             clean = v.strip()
             if clean.startswith("[") and clean.endswith("]"):
                 try:
-                    return json.loads(clean)
+                    parsed = json.loads(clean)
+                    return [str(i).strip().rstrip("/") for i in parsed if str(i).strip()]
                 except Exception:
                     pass
-            return [i.strip() for i in clean.split(",") if i.strip()]
+            return [i.strip().rstrip("/") for i in clean.split(",") if i.strip()]
         elif isinstance(v, list):
-            return v
+            return [str(i).strip().rstrip("/") for i in v if str(i).strip()]
         return list(v)
 
     @field_validator("ALLOWED_EXTENSIONS", mode="after")
