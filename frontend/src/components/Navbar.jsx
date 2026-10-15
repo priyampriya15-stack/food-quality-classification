@@ -17,10 +17,12 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ProfileModal from './ProfileModal';
+import LogoutConfirmModal from './LogoutConfirmModal';
 
 export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
 
   // Suppress navbar completely on authentication pages
@@ -53,10 +55,21 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
     setMobileMenuOpen(false);
   };
 
-  const handleLogoutClick = () => {
-    logout();
-    setActiveTab('home');
+  const handleInitiateLogout = () => {
+    setIsProfileOpen(false);
     setMobileMenuOpen(false);
+    setIsLogoutConfirmOpen(true);
+  };
+
+  const handleConfirmLogout = () => {
+    logout();
+    setIsLogoutConfirmOpen(false);
+    setIsProfileOpen(false);
+    setMobileMenuOpen(false);
+    setActiveTab('login');
+    if (typeof window !== 'undefined') {
+      window.history.pushState({ tab: 'login' }, '', '/login');
+    }
   };
 
   return (
@@ -143,8 +156,8 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
                 <Settings className="w-3 h-3 text-slate-500 group-hover:text-slate-300 ml-0.5" />
               </button>
               <button
-                onClick={handleLogoutClick}
-                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                onClick={handleInitiateLogout}
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                 title="Sign out of account"
               >
                 <LogOut className="w-3.5 h-3.5" />
@@ -251,8 +264,8 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
                   <Settings className="w-4 h-4 text-slate-400" />
                 </button>
                 <button
-                  onClick={handleLogoutClick}
-                  className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors"
+                  onClick={handleInitiateLogout}
+                  className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                   Sign Out
@@ -292,7 +305,14 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
       <ProfileModal
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
-        onLogout={handleLogoutClick}
+        onLogout={handleInitiateLogout}
+      />
+
+      {/* Independent Logout Confirmation Dialog */}
+      <LogoutConfirmModal
+        isOpen={isLogoutConfirmOpen}
+        onClose={() => setIsLogoutConfirmOpen(false)}
+        onConfirm={handleConfirmLogout}
       />
     </header>
   );
