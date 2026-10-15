@@ -20,7 +20,7 @@ export default function Footer({ onNavigate, healthStatus, modelsInfo }) {
   return (
     <footer className="mt-auto border-t border-slate-900 bg-slate-950 text-slate-400 text-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-        {/* Three Columns on Desktop / Two on Tablet / Stack on Mobile */}
+        {/* Three Columns on Desktop / Stack on Mobile */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
           
           {/* Column 1 — Brand */}
@@ -34,44 +34,22 @@ export default function Footer({ onNavigate, healthStatus, modelsInfo }) {
               </p>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              Food Quality Classification Project &mdash; an AI-assisted visual screening system designed to classify food images based on learned freshness-related patterns.
+              Food Quality Classification Project — an AI-assisted visual screening system designed to classify food images based on learned freshness-related patterns.
             </p>
           </div>
 
           {/* Column 2 — Technology Stack */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <h4 className="text-xs font-bold text-white uppercase tracking-wider">
               Technology Stack
             </h4>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-400 leading-relaxed font-mono">
               React 18 &middot; Tailwind CSS &middot; FastAPI &middot; SQLite &middot; TensorFlow / Keras 3
             </p>
-            <ul className="space-y-1.5 text-xs text-slate-400 pt-1">
-              <li className="flex items-center gap-2">
-                <span className="w-1 h-1 rounded-full bg-emerald-400" />
-                <span>React 18</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1 h-1 rounded-full bg-emerald-400" />
-                <span>Tailwind CSS</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1 h-1 rounded-full bg-emerald-400" />
-                <span>FastAPI</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1 h-1 rounded-full bg-emerald-400" />
-                <span>SQLite</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1 h-1 rounded-full bg-emerald-400" />
-                <span>TensorFlow / Keras 3</span>
-              </li>
-            </ul>
           </div>
 
           {/* Column 3 — Platform Navigation */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <h4 className="text-xs font-bold text-white uppercase tracking-wider">
               Platform Navigation
             </h4>
@@ -80,9 +58,10 @@ export default function Footer({ onNavigate, healthStatus, modelsInfo }) {
                 <li key={link.id}>
                   <button
                     onClick={() => onNavigate && onNavigate(link.id)}
-                    className="text-slate-400 hover:text-emerald-400 transition-colors cursor-pointer text-left py-0.5"
+                    className="text-slate-400 hover:text-emerald-400 transition-colors cursor-pointer text-left py-0.5 flex items-center gap-1.5"
                   >
-                    {link.label}
+                    <span className="text-emerald-400 text-xs font-bold">&ndash;</span>
+                    <span>{link.label}</span>
                   </button>
                 </li>
               ))}
@@ -90,17 +69,17 @@ export default function Footer({ onNavigate, healthStatus, modelsInfo }) {
           </div>
         </div>
 
-        {/* Bottom Section: Divider + Academic Notice + Copyright */}
+        {/* Bottom Section: Divider + Academic Notice + Copyright Line */}
         <div className="mt-8 sm:mt-10 pt-6 border-t border-slate-900 space-y-4">
-          <div className="space-y-1 text-xs text-slate-400">
+          <div className="space-y-1.5 text-xs text-slate-400">
             <h5 className="font-semibold text-slate-300">
               Academic Screening Notice
             </h5>
             <p className="leading-relaxed">
-              &ldquo;For academic and assistive quality screening only. Visual predictions do not establish food safety or confirm contamination.&rdquo;
+              For academic and assistive quality screening only. Visual predictions do not establish food safety or confirm contamination.
             </p>
             <p className="text-slate-500 leading-relaxed">
-              &ldquo;Visual inspection reflects machine-learned appearance patterns and must not be used as the sole basis for consumption decisions.&rdquo;
+              Visual inspection reflects machine-learned appearance patterns and must not be used as the sole basis for consumption decisions.
             </p>
           </div>
 
