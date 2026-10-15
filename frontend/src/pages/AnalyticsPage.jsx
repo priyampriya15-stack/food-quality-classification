@@ -85,21 +85,21 @@ export default function AnalyticsPage({ analyticsData, onRefresh, isLoading }) {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+        <div className="p-4 sm:p-5 rounded-2xl bg-slate-900 border border-slate-800">
           <span className="text-xs text-slate-400 font-medium">Total Predictions</span>
-          <p className="text-3xl font-black text-white mt-2">
+          <p className="text-2xl sm:text-3xl font-black text-white mt-1.5 sm:mt-2">
             {analyticsData?.total_predictions ?? 0}
           </p>
           <p className="text-[11px] text-slate-500 mt-1">Logged in SQLite database</p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+        <div className="p-4 sm:p-5 rounded-2xl bg-slate-900 border border-slate-800">
           <span className="text-xs text-emerald-400 font-medium flex items-center gap-1.5">
             <CheckCircle2 className="w-3.5 h-3.5" />
             Fresh Ratio
           </span>
-          <p className="text-3xl font-black text-emerald-400 mt-2">
+          <p className="text-2xl sm:text-3xl font-black text-emerald-400 mt-1.5 sm:mt-2">
             {analyticsData?.class_percentages?.Fresh ?? 0}%
           </p>
           <p className="text-[11px] text-slate-500 mt-1">
@@ -107,12 +107,12 @@ export default function AnalyticsPage({ analyticsData, onRefresh, isLoading }) {
           </p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+        <div className="p-4 sm:p-5 rounded-2xl bg-slate-900 border border-slate-800">
           <span className="text-xs text-rose-400 font-medium flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5" />
             Spoiled Rate
           </span>
-          <p className="text-3xl font-black text-rose-400 mt-2">
+          <p className="text-2xl sm:text-3xl font-black text-rose-400 mt-1.5 sm:mt-2">
             {analyticsData?.class_percentages?.Spoiled ?? 0}%
           </p>
           <p className="text-[11px] text-slate-500 mt-1">
@@ -120,12 +120,12 @@ export default function AnalyticsPage({ analyticsData, onRefresh, isLoading }) {
           </p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+        <div className="p-4 sm:p-5 rounded-2xl bg-slate-900 border border-slate-800">
           <span className="text-xs text-slate-400 font-medium flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-slate-400" />
             Average Latency
           </span>
-          <p className="text-3xl font-black text-white mt-2">
+          <p className="text-2xl sm:text-3xl font-black text-white mt-1.5 sm:mt-2 truncate">
             {analyticsData?.average_latency_ms ? `${analyticsData.average_latency_ms} ms` : 'N/A'}
           </p>
           <p className="text-[11px] text-slate-500 mt-1">

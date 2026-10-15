@@ -10,36 +10,37 @@ export default function AuthLayout({ children, onBackToHome, title, subtitle }) 
 
       {/* Auth Navigation Header (No dashboard navbar) */}
       <header className="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Brand Logo & Home Link */}
           <button
             onClick={onBackToHome}
-            className="flex items-center space-x-3 group text-left cursor-pointer focus:outline-none"
+            className="flex items-center space-x-2.5 sm:space-x-3 group text-left cursor-pointer focus:outline-none"
             title="Return to Home Dashboard"
           >
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-xl shadow-inner group-hover:scale-105 transition-transform">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-lg sm:text-xl shadow-inner group-hover:scale-105 transition-transform">
               🥗
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-lg font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">
+                <span className="text-base sm:text-lg font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">
                   FoodQuality AI
                 </span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold uppercase tracking-wider">
+                <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold uppercase tracking-wider">
                   DL
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">Automated Visual Quality Assessment</p>
+              <p className="text-[11px] text-slate-400 hidden md:block">Automated Visual Quality Assessment</p>
             </div>
           </button>
 
           {/* Back to Home Button */}
           <button
             onClick={onBackToHome}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 text-xs font-semibold transition-all shadow-sm"
+            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 text-xs font-semibold transition-all shadow-sm"
           >
             <ArrowLeft className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Back to Home</span>
+            <span className="hidden sm:inline">Back to Home</span>
+            <span className="sm:hidden">Home</span>
           </button>
         </div>
       </header>

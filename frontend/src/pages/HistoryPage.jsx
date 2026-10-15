@@ -160,7 +160,7 @@ export default function HistoryPage({ onHistoryChange }) {
       {/* History Table */}
       <div className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
+          <table className="w-full min-w-[740px] text-left text-xs text-slate-300">
             <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase tracking-wider text-[10px]">
               <tr>
                 <th className="px-5 py-3.5 font-semibold">Preview</th>

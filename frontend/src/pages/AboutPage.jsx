@@ -121,7 +121,7 @@ export default function AboutPage() {
           <Database className="w-5 h-5 text-amber-400" />
           Dataset Integrity &amp; Leakage Prevention
         </h2>
-        <div className="grid md:grid-cols-3 gap-4 text-xs text-slate-300">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs text-slate-300">
           <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
             <p className="font-semibold text-white mb-1">Standardized Dimensions</p>
             <p className="text-slate-400">All input images are validated with Pillow, converted to RGB, and normalized to 224 × 224 × 3 tensors.</p>
@@ -130,7 +130,7 @@ export default function AboutPage() {
             <p className="font-semibold text-white mb-1">Stratified 70/15/15 Split</p>
             <p className="text-slate-400">Dataset partitions ensure train, validation, and test subsets maintain identical class distribution proportions.</p>
           </div>
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 sm:col-span-2 lg:col-span-1">
             <p className="font-semibold text-white mb-1">Anti-Leakage Isolation</p>
             <p className="text-slate-400">Data augmentation (rotations, flips, zoom) applies strictly to training generators, never test evaluation.</p>
           </div>
@@ -143,7 +143,7 @@ export default function AboutPage() {
           <Code className="w-5 h-5 text-cyan-400" />
           Technology Stack
         </h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {techStack.map((group, idx) => (
             <div key={idx} className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
               <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">{group.category}</h3>

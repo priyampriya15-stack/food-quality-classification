@@ -130,7 +130,7 @@ export default function ProfileModal({ isOpen, onClose, onLogout }) {
         </div>
 
         {/* Account Metadata Details */}
-        <div className="grid grid-cols-2 gap-3 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800">
             <span className="text-slate-500 text-[11px] block flex items-center gap-1.5">
               <Database className="w-3.5 h-3.5 text-slate-400" />
@@ -238,8 +238,8 @@ export default function ProfileModal({ isOpen, onClose, onLogout }) {
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-slate-800">
-          <p className="text-[11px] text-slate-500">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-slate-800">
+          <p className="text-[11px] text-slate-500 text-center sm:text-left">
             Predictions &amp; analytics strictly isolated to your account ID.
           </p>
           <button
@@ -247,7 +247,7 @@ export default function ProfileModal({ isOpen, onClose, onLogout }) {
               handleClose();
               if (onLogout) onLogout();
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-400 hover:bg-rose-500/10 border border-rose-500/20 transition-colors"
+            className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-400 hover:bg-rose-500/10 border border-rose-500/20 transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />
             Sign Out

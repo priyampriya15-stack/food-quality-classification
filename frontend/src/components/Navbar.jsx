@@ -23,6 +23,18 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
 
+  // Suppress navbar completely on authentication pages
+  const isAuth = activeTab === 'login' || activeTab === 'register' || activeTab === 'signin' || activeTab === 'signup';
+  const isAuthLocation = typeof window !== 'undefined' && (() => {
+    const cleanPath = window.location.pathname.toLowerCase().replace(/^\/+/, '').replace(/\/+$/, '');
+    const cleanHash = window.location.hash.toLowerCase().replace(/^#\/?/, '').replace(/\/+$/, '');
+    return ['login', 'signin', 'register', 'signup'].includes(cleanPath) || ['login', 'signin', 'register', 'signup'].includes(cleanHash);
+  })();
+
+  if (isAuth || isAuthLocation) {
+    return null;
+  }
+
   const navItems = [
     { id: 'home', label: 'Home', icon: ShieldCheck },
     { id: 'assess', label: 'Assessment', icon: UploadCloud, requiresAuth: true },
@@ -141,28 +153,24 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
             </div>
           ) : (
             <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-slate-800">
-              <button
-                onClick={() => setActiveTab('login')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  activeTab === 'login'
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
-                }`}
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                Sign In
-              </button>
-              <button
-                onClick={() => setActiveTab('register')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm ${
-                  activeTab === 'register'
-                    ? 'bg-emerald-400 text-slate-950'
-                    : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-500/20'
-                }`}
-              >
-                <UserPlus className="w-3.5 h-3.5" />
-                Register
-              </button>
+              {activeTab !== 'login' && activeTab !== 'signin' && (
+                <button
+                  onClick={() => setActiveTab('login')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  Sign In
+                </button>
+              )}
+              {activeTab !== 'register' && activeTab !== 'signup' && (
+                <button
+                  onClick={() => setActiveTab('register')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-500/20"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  Register
+                </button>
+              )}
             </div>
           )}
 
@@ -251,25 +259,29 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2 pt-1">
-                <button
-                  onClick={() => {
-                    setActiveTab('login');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full py-2.5 rounded-xl text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 transition-colors"
-                >
-                  Sign In
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveTab('register');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full py-2.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-colors shadow-sm"
-                >
-                  Register
-                </button>
+              <div className="flex gap-2 pt-1">
+                {activeTab !== 'login' && activeTab !== 'signin' && (
+                  <button
+                    onClick={() => {
+                      setActiveTab('login');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 transition-colors text-center"
+                  >
+                    Sign In
+                  </button>
+                )}
+                {activeTab !== 'register' && activeTab !== 'signup' && (
+                  <button
+                    onClick={() => {
+                      setActiveTab('register');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex-1 py-2.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-colors shadow-sm text-center"
+                  >
+                    Register
+                  </button>
+                )}
               </div>
             )}
           </div>

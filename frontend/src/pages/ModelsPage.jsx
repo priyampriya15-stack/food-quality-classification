@@ -83,7 +83,7 @@ export default function ModelsPage({ modelsInfo, onRefresh }) {
       )}
 
       {/* Models Grid */}
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
         {architectures.map((arch) => {
           const isActive = modelsInfo?.active_model === arch.key;
           const exists = arch.details?.exists ?? false;
