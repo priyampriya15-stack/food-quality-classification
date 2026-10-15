@@ -68,7 +68,7 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
     setMobileMenuOpen(false);
     setActiveTab('login');
     if (typeof window !== 'undefined') {
-      window.history.pushState({ tab: 'login' }, '', '/login');
+      window.history.replaceState({ tab: 'login' }, '', '/login');
     }
   };
 

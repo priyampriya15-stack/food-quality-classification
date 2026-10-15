@@ -33,15 +33,22 @@ export default function AuthLayout({ children, onBackToHome, title, subtitle }) 
             </div>
           </button>
 
-          {/* Back to Home Button */}
-          <button
-            onClick={onBackToHome}
-            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 text-xs font-semibold transition-all shadow-sm"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="hidden sm:inline">Back to Home</span>
-            <span className="sm:hidden">Home</span>
-          </button>
+          {/* Back to Home Button or Secure Portal Badge */}
+          {onBackToHome ? (
+            <button
+              onClick={onBackToHome}
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 text-xs font-semibold transition-all shadow-sm"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden sm:inline">Back to Home</span>
+              <span className="sm:hidden">Home</span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-semibold text-slate-300 text-[11px]">Secure Portal</span>
+            </div>
+          )}
         </div>
       </header>
 

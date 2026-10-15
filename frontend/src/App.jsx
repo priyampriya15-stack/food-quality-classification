@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Navbar from './components/Navbar';
 import AuthLayout from './components/AuthLayout';
 import Footer from './components/Footer';
@@ -12,17 +12,17 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { getHealth, getAnalytics, getModels } from './services/api';
-import { Lock, LogIn, UserPlus } from 'lucide-react';
+import { Lock, LogIn, UserPlus, RefreshCw } from 'lucide-react';
 
 const getTabFromLocation = () => {
-  if (typeof window === 'undefined') return 'home';
+  if (typeof window === 'undefined') return 'login';
   const cleanPath = window.location.pathname.toLowerCase().replace(/^\/+/, '').replace(/\/+$/, '');
   const cleanHash = window.location.hash.toLowerCase().replace(/^#\/?/, '').replace(/\/+$/, '');
   const searchParams = new URLSearchParams(window.location.search);
   const tabParam = searchParams.get('tab') || searchParams.get('route');
 
   const normalize = (val) => {
-    if (!val) return null;
+    if (val === undefined || val === null) return null;
     const clean = val.toLowerCase().trim();
     if (clean === 'login' || clean === 'signin' || clean === 'sign-in') return 'login';
     if (clean === 'register' || clean === 'signup' || clean === 'sign-up') return 'register';
@@ -31,11 +31,16 @@ const getTabFromLocation = () => {
     if (clean === 'history') return 'history';
     if (clean === 'models') return 'models';
     if (clean === 'about') return 'about';
-    if (clean === 'home' || clean === '') return 'home';
+    if (clean === 'home') return 'home';
+    if (clean === '') {
+      const hasToken = typeof localStorage !== 'undefined' && !!localStorage.getItem('food_quality_token');
+      return hasToken ? 'home' : 'login';
+    }
     return null;
   };
 
-  return normalize(cleanPath) || normalize(cleanHash) || normalize(tabParam) || 'home';
+  const hasToken = typeof localStorage !== 'undefined' && !!localStorage.getItem('food_quality_token');
+  return normalize(cleanPath) || normalize(cleanHash) || normalize(tabParam) || (hasToken ? 'home' : 'login');
 };
 
 const TAB_TITLES = {
@@ -64,14 +69,14 @@ function ProtectedPrompt({ tabName, onSignIn, onRegister }) {
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 pt-3">
         <button
           onClick={onSignIn}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all shadow-lg shadow-emerald-500/25 hover:scale-[1.02]"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all shadow-lg shadow-emerald-500/25 hover:scale-[1.02] cursor-pointer"
         >
           <LogIn className="w-4 h-4" />
           Sign In
         </button>
         <button
           onClick={onRegister}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-colors"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-colors cursor-pointer"
         >
           <UserPlus className="w-4 h-4" />
           Create Free Account
@@ -82,14 +87,26 @@ function ProtectedPrompt({ tabName, onSignIn, onRegister }) {
 }
 
 function MainApp() {
+  const { user, isAuthenticated, loading } = useAuth();
+  const redirectTabRef = useRef(null);
   const [activeTab, setActiveTab] = useState(getTabFromLocation);
   const [healthStatus, setHealthStatus] = useState(null);
   const [analyticsData, setAnalyticsData] = useState(null);
   const [modelsInfo, setModelsInfo] = useState(null);
   const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(false);
-  const { user, isAuthenticated } = useAuth();
 
   const handleTabChange = useCallback((tabId) => {
+    // If not authenticated, only 'login' and 'register' are allowed
+    if (!isAuthenticated && tabId !== 'login' && tabId !== 'register') {
+      redirectTabRef.current = tabId;
+      setActiveTab('login');
+      if (typeof window !== 'undefined') {
+        window.history.pushState({ tab: 'login' }, '', '/login');
+        if (TAB_TITLES['login']) document.title = TAB_TITLES['login'];
+      }
+      return;
+    }
+
     setActiveTab(tabId);
     if (typeof window !== 'undefined') {
       const targetPath = tabId === 'home' ? '/' : `/${tabId}`;
@@ -100,12 +117,77 @@ function MainApp() {
         document.title = TAB_TITLES[tabId];
       }
     }
-  }, []);
+  }, [isAuthenticated]);
+
+  // Route protection guard: Enforce authentication for all application routes
+  useEffect(() => {
+    if (loading) return;
+
+    const currentTab = getTabFromLocation();
+
+    if (!isAuthenticated) {
+      // Unauthenticated: only 'login' and 'register' are permitted
+      if (currentTab !== 'login' && currentTab !== 'register') {
+        if (currentTab !== 'home') {
+          redirectTabRef.current = currentTab;
+        }
+        setActiveTab('login');
+        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+          window.history.replaceState({ tab: 'login' }, '', '/login');
+        }
+        if (TAB_TITLES['login']) {
+          document.title = TAB_TITLES['login'];
+        }
+      } else {
+        setActiveTab(currentTab);
+        if (typeof window !== 'undefined' && window.location.pathname !== `/${currentTab}`) {
+          window.history.replaceState({ tab: currentTab }, '', `/${currentTab}`);
+        }
+        if (TAB_TITLES[currentTab]) {
+          document.title = TAB_TITLES[currentTab];
+        }
+      }
+    } else {
+      // Authenticated: redirect away from login/register to target or home
+      if (currentTab === 'login' || currentTab === 'register') {
+        const dest = redirectTabRef.current || 'home';
+        redirectTabRef.current = null;
+        setActiveTab(dest);
+        const targetPath = dest === 'home' ? '/' : `/${dest}`;
+        if (typeof window !== 'undefined' && window.location.pathname !== targetPath) {
+          window.history.replaceState({ tab: dest }, '', targetPath);
+        }
+        if (TAB_TITLES[dest]) {
+          document.title = TAB_TITLES[dest];
+        }
+      } else {
+        setActiveTab(currentTab);
+        if (TAB_TITLES[currentTab]) {
+          document.title = TAB_TITLES[currentTab];
+        }
+      }
+    }
+  }, [isAuthenticated, loading]);
 
   // Listen to browser navigation (back/forward and hashchange)
   useEffect(() => {
     const handleLocationChange = () => {
+      if (loading) return;
       const currentTab = getTabFromLocation();
+
+      // Enforce route protection on browser Back/Forward navigation
+      if (!isAuthenticated && currentTab !== 'login' && currentTab !== 'register') {
+        if (currentTab !== 'home') {
+          redirectTabRef.current = currentTab;
+        }
+        setActiveTab('login');
+        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+          window.history.replaceState({ tab: 'login' }, '', '/login');
+        }
+        if (TAB_TITLES['login']) document.title = TAB_TITLES['login'];
+        return;
+      }
+
       setActiveTab(currentTab);
       if (TAB_TITLES[currentTab]) {
         document.title = TAB_TITLES[currentTab];
@@ -115,16 +197,11 @@ function MainApp() {
     window.addEventListener('popstate', handleLocationChange);
     window.addEventListener('hashchange', handleLocationChange);
 
-    // Initial title set
-    if (TAB_TITLES[activeTab]) {
-      document.title = TAB_TITLES[activeTab];
-    }
-
     return () => {
       window.removeEventListener('popstate', handleLocationChange);
       window.removeEventListener('hashchange', handleLocationChange);
     };
-  }, [activeTab]);
+  }, [isAuthenticated, loading]);
 
   // Load system health
   const fetchHealth = useCallback(async () => {
@@ -143,6 +220,7 @@ function MainApp() {
 
   // Load analytics (user-scoped when authenticated)
   const fetchAnalytics = useCallback(async () => {
+    if (!isAuthenticated) return;
     setIsAnalyticsLoading(true);
     try {
       const data = await getAnalytics();
@@ -152,7 +230,7 @@ function MainApp() {
     } finally {
       setIsAnalyticsLoading(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   // Load models info
   const fetchModels = useCallback(async () => {
@@ -167,8 +245,11 @@ function MainApp() {
   // Refresh data on mount or when auth state changes
   useEffect(() => {
     fetchHealth();
-    fetchAnalytics();
     fetchModels();
+
+    if (isAuthenticated) {
+      fetchAnalytics();
+    }
 
     const interval = setInterval(() => {
       fetchHealth();
@@ -183,35 +264,49 @@ function MainApp() {
     fetchHealth();
   };
 
-  // Robust auth page detection from both active state and browser location
-  const isCurrentAuth = activeTab === 'login' || activeTab === 'register';
-  const locationAuth = typeof window !== 'undefined' && (getTabFromLocation() === 'login' || getTabFromLocation() === 'register');
-  const isAuthPage = isCurrentAuth || locationAuth;
-  const currentAuthTab = isCurrentAuth ? activeTab : (locationAuth ? getTabFromLocation() : 'login');
-
-  // Independent Layout for Authentication Pages (No Navbar, No Dashboard Footer)
-  if (isAuthPage) {
+  // 1. Session verification loading state
+  if (loading) {
     return (
-      <AuthLayout onBackToHome={() => handleTabChange('home')}>
-        {currentAuthTab === 'login' && (
-          <LoginPage
-            onNavigateRegister={() => handleTabChange('register')}
-            onLoginSuccess={() => handleTabChange('assess')}
-            onContinueGuest={() => handleTabChange('home')}
-          />
-        )}
-        {currentAuthTab === 'register' && (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400 font-sans">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <RefreshCw className="w-5 h-5 animate-spin" />
+          </div>
+          <p className="text-xs text-slate-400 font-medium">Verifying session...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Unauthenticated Layout: Login as Default Entry Page (Protects all website pages)
+  if (!isAuthenticated) {
+    const isRegister = activeTab === 'register' || (typeof window !== 'undefined' && getTabFromLocation() === 'register');
+    return (
+      <AuthLayout>
+        {isRegister ? (
           <RegisterPage
             onNavigateLogin={() => handleTabChange('login')}
-            onRegisterSuccess={() => handleTabChange('assess')}
-            onContinueGuest={() => handleTabChange('home')}
+            onRegisterSuccess={() => {
+              const dest = redirectTabRef.current || 'home';
+              redirectTabRef.current = null;
+              handleTabChange(dest);
+            }}
+          />
+        ) : (
+          <LoginPage
+            onNavigateRegister={() => handleTabChange('register')}
+            onLoginSuccess={() => {
+              const dest = redirectTabRef.current || 'home';
+              redirectTabRef.current = null;
+              handleTabChange(dest);
+            }}
           />
         )}
       </AuthLayout>
     );
   }
 
-  // Standard Dashboard Layout (With Navbar and Dashboard Footer)
+  // 3. Authenticated Dashboard Layout (Navbar + Main Content + Footer)
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950 overflow-x-hidden">
       {/* Top Navbar */}
@@ -232,49 +327,25 @@ function MainApp() {
         )}
 
         {activeTab === 'assess' && (
-          isAuthenticated ? (
-            <AssessmentPage
-              onPredictionSuccess={handlePredictionSuccess}
-              modelsInfo={modelsInfo}
-              onNavigateTab={handleTabChange}
-            />
-          ) : (
-            <ProtectedPrompt
-              tabName="Produce Assessment"
-              onSignIn={() => handleTabChange('login')}
-              onRegister={() => handleTabChange('register')}
-            />
-          )
+          <AssessmentPage
+            onPredictionSuccess={handlePredictionSuccess}
+            modelsInfo={modelsInfo}
+            onNavigateTab={handleTabChange}
+          />
         )}
 
         {activeTab === 'analytics' && (
-          isAuthenticated ? (
-            <AnalyticsPage
-              analyticsData={analyticsData}
-              onRefresh={fetchAnalytics}
-              isLoading={isAnalyticsLoading}
-            />
-          ) : (
-            <ProtectedPrompt
-              tabName="Quality Analytics"
-              onSignIn={() => handleTabChange('login')}
-              onRegister={() => handleTabChange('register')}
-            />
-          )
+          <AnalyticsPage
+            analyticsData={analyticsData}
+            onRefresh={fetchAnalytics}
+            isLoading={isAnalyticsLoading}
+          />
         )}
 
         {activeTab === 'history' && (
-          isAuthenticated ? (
-            <HistoryPage
-              onHistoryChange={fetchAnalytics}
-            />
-          ) : (
-            <ProtectedPrompt
-              tabName="Prediction History"
-              onSignIn={() => handleTabChange('login')}
-              onRegister={() => handleTabChange('register')}
-            />
-          )
+          <HistoryPage
+            onHistoryChange={fetchAnalytics}
+          />
         )}
 
         {activeTab === 'models' && (
