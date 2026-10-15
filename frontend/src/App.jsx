@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/Navbar';
 import AuthLayout from './components/AuthLayout';
+import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import AssessmentPage from './pages/AssessmentPage';
 import AnalyticsPage from './pages/AnalyticsPage';
@@ -291,18 +292,8 @@ function MainApp() {
         )}
       </main>
 
-      {/* Standard Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950 py-8 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2">
-          <p className="font-medium text-slate-400">
-            Food Quality Classification Project &bull; Automated Visual Quality Assessment
-          </p>
-          <p className="text-[11px] text-slate-600">
-            Built with React 18, Tailwind CSS, FastAPI, SQLite, and TensorFlow / Keras 3.
-            Visual inspection is intended for academic and assistive quality screening only.
-          </p>
-        </div>
-      </footer>
+      {/* Professional Dashboard Footer */}
+      <Footer onNavigate={handleTabChange} />
     </div>
   );
 }
