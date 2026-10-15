@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { 
-  KeyRound, 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  CheckCircle2, 
-  AlertTriangle, 
-  X, 
-  RefreshCw, 
-  Copy, 
-  Check, 
-  Info 
+import {
+  KeyRound,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  AlertTriangle,
+  X,
+  RefreshCw,
+  Copy,
+  Check,
+  Info
 } from 'lucide-react';
 import { forgotPassword, resetPassword } from '../services/api';
 
@@ -104,7 +104,7 @@ export default function ForgotPasswordModal({ isOpen, onClose, onSwitchToLogin }
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 xs:p-4 sm:p-6 overflow-y-auto">
-      <div 
+      <div
         className="w-full max-w-md max-h-[92vh] flex flex-col bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden relative my-auto"
         onClick={(e) => e.stopPropagation()}
       >

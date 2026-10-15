@@ -11,29 +11,48 @@ export default function AuthLayout({ children, onBackToHome, title, subtitle }) 
       {/* Auth Navigation Header (No dashboard navbar) */}
       <header className="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Brand Logo & Home Link */}
-          <button
-            onClick={onBackToHome}
-            className="flex items-center space-x-2.5 sm:space-x-3 group text-left cursor-pointer focus:outline-none"
-            title="Return to Home Dashboard"
-          >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-lg sm:text-xl shadow-inner group-hover:scale-105 transition-transform">
-              🥗
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-base sm:text-lg font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">
-                  FoodQuality AI
-                </span>
-                <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold uppercase tracking-wider">
-                  DL
-                </span>
+          {/* Brand Logo */}
+          {onBackToHome ? (
+            <button
+              onClick={onBackToHome}
+              className="flex items-center space-x-2.5 sm:space-x-3 group text-left cursor-pointer focus:outline-none"
+              title="Return to Home Dashboard"
+            >
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-lg sm:text-xl shadow-inner group-hover:scale-105 transition-transform">
+                🥗
               </div>
-              <p className="text-[11px] text-slate-400 hidden md:block">Automated Visual Quality Assessment</p>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-base sm:text-lg font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">
+                    FoodQuality AI
+                  </span>
+                  <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold uppercase tracking-wider">
+                    DL
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 hidden md:block">Automated Visual Quality Assessment</p>
+              </div>
+            </button>
+          ) : (
+            <div className="flex items-center space-x-2.5 sm:space-x-3 text-left select-none">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-lg sm:text-xl shadow-inner">
+                🥗
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-base sm:text-lg font-bold tracking-tight text-white">
+                    FoodQuality AI
+                  </span>
+                  <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold uppercase tracking-wider">
+                    DL
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 hidden md:block">Automated Visual Quality Assessment</p>
+              </div>
             </div>
-          </button>
+          )}
 
-          {/* Back to Home Button or Secure Portal Badge */}
+          {/* Secure Portal Badge */}
           {onBackToHome ? (
             <button
               onClick={onBackToHome}
@@ -46,7 +65,7 @@ export default function AuthLayout({ children, onBackToHome, title, subtitle }) 
           ) : (
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-semibold text-slate-300 text-[11px]">Secure Portal</span>
+              <span className="font-semibold text-slate-300 text-[11px]">Authentication Portal</span>
             </div>
           )}
         </div>

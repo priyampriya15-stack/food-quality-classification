@@ -32,15 +32,16 @@ const getTabFromLocation = () => {
     if (clean === 'models') return 'models';
     if (clean === 'about') return 'about';
     if (clean === 'home') return 'home';
-    if (clean === '') {
-      const hasToken = typeof localStorage !== 'undefined' && !!localStorage.getItem('food_quality_token');
-      return hasToken ? 'home' : 'login';
-    }
     return null;
   };
 
   const hasToken = typeof localStorage !== 'undefined' && !!localStorage.getItem('food_quality_token');
-  return normalize(cleanPath) || normalize(cleanHash) || normalize(tabParam) || (hasToken ? 'home' : 'login');
+  const matched = normalize(cleanPath) || normalize(cleanHash) || normalize(tabParam);
+
+  if (matched) return matched;
+  // If at root '/' or unknown path:
+  // Authenticated users go to 'home'; unauthenticated users go to 'login'
+  return hasToken ? 'home' : 'login';
 };
 
 const TAB_TITLES = {
@@ -54,42 +55,36 @@ const TAB_TITLES = {
   register: 'FoodQuality AI - Create Account',
 };
 
-function ProtectedPrompt({ tabName, onSignIn, onRegister }) {
-  return (
-    <div className="p-6 sm:p-10 md:p-12 rounded-2xl bg-slate-900/90 border border-slate-800 text-center space-y-4 max-w-lg mx-auto my-8 sm:my-12 shadow-2xl">
-      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mx-auto shadow-inner">
-        <Lock className="w-7 h-7 sm:w-8 sm:h-8" />
-      </div>
-      <div>
-        <h2 className="text-xl sm:text-2xl font-bold text-white">Authentication Required</h2>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1.5 leading-relaxed">
-          Please sign in to access <strong>{tabName}</strong>. Authenticated sessions enable personalized prediction history, private audit logs, and user-specific analytics.
-        </p>
-      </div>
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 pt-3">
-        <button
-          onClick={onSignIn}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all shadow-lg shadow-emerald-500/25 hover:scale-[1.02] cursor-pointer"
-        >
-          <LogIn className="w-4 h-4" />
-          Sign In
-        </button>
-        <button
-          onClick={onRegister}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-colors cursor-pointer"
-        >
-          <UserPlus className="w-4 h-4" />
-          Create Free Account
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function MainApp() {
-  const { user, isAuthenticated, loading } = useAuth();
-  const redirectTabRef = useRef(null);
-  const [activeTab, setActiveTab] = useState(getTabFromLocation);
+  const { user, isAuthenticated, loading, logout } = useAuth();
+  
+  // Track intended protected destination for post-login redirect
+  const redirectTabRef = useRef(
+    (() => {
+      if (typeof window === 'undefined') return null;
+      const hasToken = !!localStorage.getItem('food_quality_token');
+      const loc = getTabFromLocation();
+      if (!hasToken && loc !== 'login' && loc !== 'register' && loc !== 'home') {
+        return loc;
+      }
+      return null;
+    })()
+  );
+
+  // Initialize activeTab deterministically based on immediate authentication presence
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window === 'undefined') return 'login';
+    const hasToken = !!localStorage.getItem('food_quality_token');
+    const loc = getTabFromLocation();
+    if (!hasToken) {
+      return loc === 'register' ? 'register' : 'login';
+    }
+    if (loc === 'login' || loc === 'register') {
+      return 'home';
+    }
+    return loc || 'home';
+  });
+
   const [healthStatus, setHealthStatus] = useState(null);
   const [analyticsData, setAnalyticsData] = useState(null);
   const [modelsInfo, setModelsInfo] = useState(null);
@@ -118,6 +113,21 @@ function MainApp() {
       }
     }
   }, [isAuthenticated]);
+
+  // Synchronize on explicit auth:logout events
+  useEffect(() => {
+    const handleLogoutEvent = () => {
+      redirectTabRef.current = null;
+      setActiveTab('login');
+      if (typeof window !== 'undefined') {
+        window.history.replaceState({ tab: 'login' }, '', '/login');
+        if (TAB_TITLES['login']) document.title = TAB_TITLES['login'];
+      }
+    };
+
+    window.addEventListener('auth:logout', handleLogoutEvent);
+    return () => window.removeEventListener('auth:logout', handleLogoutEvent);
+  }, []);
 
   // Route protection guard: Enforce authentication for all application routes
   useEffect(() => {
@@ -149,8 +159,8 @@ function MainApp() {
       }
     } else {
       // Authenticated: redirect away from login/register to target or home
-      if (currentTab === 'login' || currentTab === 'register') {
-        const dest = redirectTabRef.current || 'home';
+      if (currentTab === 'login' || currentTab === 'register' || activeTab === 'login' || activeTab === 'register') {
+        const dest = redirectTabRef.current || (activeTab !== 'login' && activeTab !== 'register' ? activeTab : 'home');
         redirectTabRef.current = null;
         setActiveTab(dest);
         const targetPath = dest === 'home' ? '/' : `/${dest}`;
@@ -161,9 +171,8 @@ function MainApp() {
           document.title = TAB_TITLES[dest];
         }
       } else {
-        setActiveTab(currentTab);
-        if (TAB_TITLES[currentTab]) {
-          document.title = TAB_TITLES[currentTab];
+        if (TAB_TITLES[activeTab]) {
+          document.title = TAB_TITLES[activeTab];
         }
       }
     }

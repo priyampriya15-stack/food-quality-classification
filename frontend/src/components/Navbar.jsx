@@ -25,7 +25,7 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
 
-  // Suppress navbar completely on authentication pages
+  // Suppress navbar completely on authentication pages or when unauthenticated
   const isAuth = activeTab === 'login' || activeTab === 'register' || activeTab === 'signin' || activeTab === 'signup';
   const isAuthLocation = typeof window !== 'undefined' && (() => {
     const cleanPath = window.location.pathname.toLowerCase().replace(/^\/+/, '').replace(/\/+$/, '');
@@ -33,7 +33,7 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
     return ['login', 'signin', 'register', 'signup'].includes(cleanPath) || ['login', 'signin', 'register', 'signup'].includes(cleanHash);
   })();
 
-  if (isAuth || isAuthLocation) {
+  if (!isAuthenticated || isAuth || isAuthLocation) {
     return null;
   }
 
