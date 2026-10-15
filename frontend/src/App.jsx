@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/Navbar';
+import AuthLayout from './components/AuthLayout';
 import HomePage from './pages/HomePage';
 import AssessmentPage from './pages/AssessmentPage';
 import AnalyticsPage from './pages/AnalyticsPage';
@@ -11,6 +12,19 @@ import RegisterPage from './pages/RegisterPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { getHealth, getAnalytics, getModels } from './services/api';
 import { Lock, LogIn, UserPlus } from 'lucide-react';
+
+const getTabFromPath = () => {
+  if (typeof window === 'undefined') return 'home';
+  const clean = window.location.pathname.toLowerCase().replace(/^\/+/, '').replace(/\/+$/, '');
+  if (clean === 'login' || clean === 'signin') return 'login';
+  if (clean === 'register' || clean === 'signup') return 'register';
+  if (clean === 'assess' || clean === 'assessment') return 'assess';
+  if (clean === 'analytics') return 'analytics';
+  if (clean === 'history') return 'history';
+  if (clean === 'models') return 'models';
+  if (clean === 'about') return 'about';
+  return 'home';
+};
 
 function ProtectedPrompt({ tabName, onSignIn, onRegister }) {
   return (
@@ -45,12 +59,31 @@ function ProtectedPrompt({ tabName, onSignIn, onRegister }) {
 }
 
 function MainApp() {
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState(getTabFromPath);
   const [healthStatus, setHealthStatus] = useState(null);
   const [analyticsData, setAnalyticsData] = useState(null);
   const [modelsInfo, setModelsInfo] = useState(null);
   const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(false);
   const { user, isAuthenticated } = useAuth();
+
+  const handleTabChange = useCallback((tabId) => {
+    setActiveTab(tabId);
+    if (typeof window !== 'undefined') {
+      const targetPath = tabId === 'home' ? '/' : `/${tabId}`;
+      if (window.location.pathname !== targetPath) {
+        window.history.pushState(null, '', targetPath);
+      }
+    }
+  }, []);
+
+  // Listen to browser navigation (back/forward)
+  useEffect(() => {
+    const handlePopState = () => {
+      setActiveTab(getTabFromPath());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Load system health
   const fetchHealth = useCallback(async () => {
@@ -109,20 +142,45 @@ function MainApp() {
     fetchHealth();
   };
 
+  const isAuthPage = activeTab === 'login' || activeTab === 'register';
+
+  // Independent Layout for Authentication Pages (No Navbar, No Dashboard Footer)
+  if (isAuthPage) {
+    return (
+      <AuthLayout onBackToHome={() => handleTabChange('home')}>
+        {activeTab === 'login' && (
+          <LoginPage
+            onNavigateRegister={() => handleTabChange('register')}
+            onLoginSuccess={() => handleTabChange('assess')}
+            onContinueGuest={() => handleTabChange('home')}
+          />
+        )}
+        {activeTab === 'register' && (
+          <RegisterPage
+            onNavigateLogin={() => handleTabChange('login')}
+            onRegisterSuccess={() => handleTabChange('assess')}
+            onContinueGuest={() => handleTabChange('home')}
+          />
+        )}
+      </AuthLayout>
+    );
+  }
+
+  // Standard Dashboard Layout (With Navbar and Dashboard Footer)
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950">
       {/* Top Navbar */}
       <Navbar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleTabChange}
         healthStatus={healthStatus}
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
         {activeTab === 'home' && (
           <HomePage
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
             analyticsData={analyticsData}
             healthStatus={healthStatus}
           />
@@ -133,13 +191,13 @@ function MainApp() {
             <AssessmentPage
               onPredictionSuccess={handlePredictionSuccess}
               modelsInfo={modelsInfo}
-              onNavigateTab={setActiveTab}
+              onNavigateTab={handleTabChange}
             />
           ) : (
             <ProtectedPrompt
               tabName="Produce Assessment"
-              onSignIn={() => setActiveTab('login')}
-              onRegister={() => setActiveTab('register')}
+              onSignIn={() => handleTabChange('login')}
+              onRegister={() => handleTabChange('register')}
             />
           )
         )}
@@ -154,8 +212,8 @@ function MainApp() {
           ) : (
             <ProtectedPrompt
               tabName="Quality Analytics"
-              onSignIn={() => setActiveTab('login')}
-              onRegister={() => setActiveTab('register')}
+              onSignIn={() => handleTabChange('login')}
+              onRegister={() => handleTabChange('register')}
             />
           )
         )}
@@ -168,8 +226,8 @@ function MainApp() {
           ) : (
             <ProtectedPrompt
               tabName="Prediction History"
-              onSignIn={() => setActiveTab('login')}
-              onRegister={() => setActiveTab('register')}
+              onSignIn={() => handleTabChange('login')}
+              onRegister={() => handleTabChange('register')}
             />
           )
         )}
@@ -186,22 +244,6 @@ function MainApp() {
 
         {activeTab === 'about' && (
           <AboutPage />
-        )}
-
-        {activeTab === 'login' && (
-          <LoginPage
-            onNavigateRegister={() => setActiveTab('register')}
-            onLoginSuccess={() => setActiveTab('assess')}
-            onContinueGuest={() => setActiveTab('home')}
-          />
-        )}
-
-        {activeTab === 'register' && (
-          <RegisterPage
-            onNavigateLogin={() => setActiveTab('login')}
-            onRegisterSuccess={() => setActiveTab('assess')}
-            onContinueGuest={() => setActiveTab('home')}
-          />
         )}
       </main>
 

@@ -80,8 +80,7 @@ export default function RegisterPage({ onNavigateLogin, onRegisterSuccess, onCon
   const isPasswordMatch = password && confirmPassword && password === confirmPassword;
 
   return (
-    <div className="min-h-[calc(100vh-12rem)] flex flex-col justify-center items-center py-6 px-4">
-      <div className="w-full max-w-md space-y-6">
+    <div className="w-full max-w-md mx-auto space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 shadow-inner text-2xl mb-1">
@@ -270,6 +269,5 @@ export default function RegisterPage({ onNavigateLogin, onRegisterSuccess, onCon
         {/* Compact Safety Notice */}
         <FoodSafetyDisclaimer compact />
       </div>
-    </div>
-  );
-}
+    );
+  }
