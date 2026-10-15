@@ -17,14 +17,14 @@ export default function LogoutConfirmModal({ isOpen, onClose, onConfirm }) {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 xs:p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby="logout-dialog-title"
       onClick={onClose}
     >
       <div 
-        className="relative w-full max-w-sm sm:max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 text-slate-100 space-y-4 animate-in fade-in zoom-in-95 duration-150"
+        className="relative w-full max-w-sm sm:max-w-md max-h-[92vh] overflow-y-auto bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-5 sm:p-6 text-slate-100 space-y-4 my-auto animate-in fade-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

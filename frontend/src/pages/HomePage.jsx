@@ -120,13 +120,13 @@ export default function HomePage({ setActiveTab, analyticsData, healthStatus }) 
           </div>
 
           {/* Right Column (Desktop) & Below (Tablet/Mobile): Scanned Produce Showcase */}
-          <div className="lg:col-span-5 flex justify-center">
-            <div className="relative flex items-center justify-center p-4">
+          <div className="lg:col-span-5 flex justify-center w-full">
+            <div className="relative flex items-center justify-center p-2 sm:p-4 max-w-full">
               {/* Glowing circular backdrop aura */}
-              <div className="absolute w-60 h-60 sm:w-72 sm:h-72 rounded-full bg-emerald-500/15 blur-2xl pointer-events-none" />
+              <div className="absolute w-48 h-48 sm:w-72 sm:h-72 rounded-full bg-emerald-500/15 blur-2xl pointer-events-none" />
 
               {/* Scanned Image with Reticle Scanner Overlay */}
-              <div className="relative w-56 h-56 sm:w-64 sm:h-64 rounded-2xl overflow-hidden shadow-2xl border border-emerald-500/30 group">
+              <div className="relative w-44 h-44 xs:w-52 xs:h-52 sm:w-64 sm:h-64 rounded-2xl overflow-hidden shadow-2xl border border-emerald-500/30 group">
                 <img
                   src={showcaseTomatoImg}
                   alt="Fresh Tomato Scanned"
@@ -136,13 +136,13 @@ export default function HomePage({ setActiveTab, analyticsData, healthStatus }) 
                 {/* Holographic Glowing Scanner Reticle */}
                 <div className="absolute inset-2 pointer-events-none">
                   {/* Top-Left Corner */}
-                  <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-emerald-400 drop-shadow-[0_0_8px_#10b981]" />
+                  <div className="absolute top-0 left-0 w-5 h-5 sm:w-6 sm:h-6 border-t-2 border-l-2 border-emerald-400 drop-shadow-[0_0_8px_#10b981]" />
                   {/* Top-Right Corner */}
-                  <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-emerald-400 drop-shadow-[0_0_8px_#10b981]" />
+                  <div className="absolute top-0 right-0 w-5 h-5 sm:w-6 sm:h-6 border-t-2 border-r-2 border-emerald-400 drop-shadow-[0_0_8px_#10b981]" />
                   {/* Bottom-Left Corner */}
-                  <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-emerald-400 drop-shadow-[0_0_8px_#10b981]" />
+                  <div className="absolute bottom-0 left-0 w-5 h-5 sm:w-6 sm:h-6 border-b-2 border-l-2 border-emerald-400 drop-shadow-[0_0_8px_#10b981]" />
                   {/* Bottom-Right Corner */}
-                  <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-emerald-400 drop-shadow-[0_0_8px_#10b981]" />
+                  <div className="absolute bottom-0 right-0 w-5 h-5 sm:w-6 sm:h-6 border-b-2 border-r-2 border-emerald-400 drop-shadow-[0_0_8px_#10b981]" />
 
                   {/* Pulsing Scanline */}
                   <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#06b6d4] animate-pulse" />
@@ -150,15 +150,15 @@ export default function HomePage({ setActiveTab, analyticsData, healthStatus }) 
               </div>
 
               {/* Floating Quality/Confidence Indicator Card (matching showcase) */}
-              <div className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2 p-3 sm:p-3.5 rounded-2xl bg-slate-900/95 backdrop-blur-md border border-slate-700/80 shadow-2xl space-y-1.5 min-w-[120px] sm:min-w-[130px] z-10">
+              <div className="absolute right-0 xs:-right-2 sm:-right-4 bottom-2 xs:top-1/2 xs:-translate-y-1/2 p-2.5 sm:p-3.5 rounded-2xl bg-slate-900/95 backdrop-blur-md border border-slate-700/80 shadow-2xl space-y-1 sm:space-y-1.5 min-w-[110px] sm:min-w-[130px] z-10">
                 <div className="flex items-center justify-between">
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[11px] flex items-center gap-1 border border-emerald-500/30">
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] sm:text-[11px] flex items-center gap-1 border border-emerald-500/30">
                     Fresh <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-medium">Confidence</span>
-                  <span className="text-base sm:text-lg font-black text-white flex items-center gap-1">
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 uppercase tracking-wider block font-medium">Confidence</span>
+                  <span className="text-sm sm:text-lg font-black text-white flex items-center gap-1">
                     98.7% <span className="text-emerald-400 text-xs font-bold">✓</span>
                   </span>
                 </div>
@@ -206,13 +206,13 @@ export default function HomePage({ setActiveTab, analyticsData, healthStatus }) 
             return (
               <div
                 key={idx}
-                className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all flex items-start gap-4"
+                className="p-4 sm:p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all flex flex-col xs:flex-row items-start gap-3 sm:gap-4"
               >
-                <div className={`p-3 rounded-xl border shrink-0 ${feat.color}`}>
-                  <Icon className="w-6 h-6" />
+                <div className={`p-2.5 sm:p-3 rounded-xl border shrink-0 ${feat.color}`}>
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white text-base mb-1">{feat.title}</h3>
+                  <h3 className="font-semibold text-white text-sm sm:text-base mb-1">{feat.title}</h3>
                   <p className="text-sm text-slate-400 leading-relaxed">{feat.desc}</p>
                 </div>
               </div>

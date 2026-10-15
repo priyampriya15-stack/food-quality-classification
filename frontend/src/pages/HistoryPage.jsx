@@ -259,9 +259,84 @@ export default function HistoryPage({ onHistoryChange }) {
         ))}
       </div>
 
-      {/* Main Table Card matching reference */}
+      {/* Main Container Card */}
       <div className="rounded-2xl bg-slate-900/80 border border-slate-800/80 overflow-hidden shadow-xl backdrop-blur-sm">
-        <div className="overflow-x-auto">
+        {/* Mobile Card View (< 768px) */}
+        <div className="block md:hidden divide-y divide-slate-800/60">
+          {isLoading ? (
+            <div className="px-4 py-16 text-center text-slate-500">
+              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-500/60" />
+              Fetching analysis logs from database...
+            </div>
+          ) : filteredItems.length === 0 ? (
+            <div className="px-4 py-16 text-center text-slate-500">
+              <div className="w-12 h-12 rounded-2xl bg-slate-800/60 flex items-center justify-center mx-auto mb-3 text-slate-500">
+                <ImageIcon className="w-6 h-6" />
+              </div>
+              <p className="text-sm text-slate-300 font-medium">No assessment records found</p>
+              <p className="text-xs text-slate-500 mt-1">
+                Upload an image in the Assessment tab to perform quality classification.
+              </p>
+            </div>
+          ) : (
+            filteredItems.map((item) => {
+              const imageUrl = getImageUrl(item.image_path);
+              const foodName = getFoodName(item);
+              const formattedDate = formatDateTime(item.created_at);
+              const confidencePct = (item.confidence * 100).toFixed(1) + '%';
+
+              return (
+                <div key={item.id} className="p-4 space-y-3 hover:bg-slate-800/20 transition-colors">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div 
+                        onClick={() => setSelectedDetailItem(item)}
+                        className="w-12 h-12 rounded-xl overflow-hidden border border-slate-700/60 bg-slate-950 flex items-center justify-center cursor-pointer shrink-0 shadow-sm"
+                      >
+                        {imageUrl ? (
+                          <img 
+                            src={imageUrl} 
+                            alt={foodName} 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.parentElement.innerHTML = '<span class="text-[10px] text-slate-500">IMG</span>';
+                            }}
+                          />
+                        ) : (
+                          <ImageIcon className="w-5 h-5 text-slate-600" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-xs font-bold text-white truncate">{foodName}</h4>
+                        <p className="text-[11px] text-slate-400 mt-0.5 truncate">{formattedDate}</p>
+                      </div>
+                    </div>
+                    <div className="shrink-0">
+                      {renderQualityBadge(item)}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1 border-t border-slate-800/40 text-xs">
+                    <div className="flex items-center gap-1.5 text-slate-400">
+                      <span className="text-[11px]">Confidence:</span>
+                      <span className="font-mono font-bold text-emerald-400">{confidencePct}</span>
+                    </div>
+                    <button
+                      onClick={() => setSelectedDetailItem(item)}
+                      className="px-3.5 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 font-semibold text-xs border border-emerald-500/30 transition-colors shadow-sm"
+                    >
+                      View Details &rarr;
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Desktop Table View (>= 768px) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full min-w-[700px] text-left text-xs text-slate-300">
             {/* Headers matching reference: Date & Time | Image | Food Name | Quality | Confidence | Actions */}
             <thead className="bg-slate-950/60 border-b border-slate-800/80 text-slate-400 font-medium text-xs">
@@ -366,19 +441,19 @@ export default function HistoryPage({ onHistoryChange }) {
         </div>
 
         {/* Bottom Pagination Controls matching reference: < 1 2 3 ... > */}
-        <div className="px-6 py-4 border-t border-slate-800/80 bg-slate-950/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
-          <span>
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t border-slate-800/80 bg-slate-950/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+          <span className="text-center sm:text-left">
             Showing <span className="text-white font-medium">{historyItems.length > 0 ? page * limit + 1 : 0}</span>–
             <span className="text-white font-medium">{Math.min((page + 1) * limit, totalCount)}</span> of{' '}
             <span className="text-white font-medium">{totalCount}</span> results
           </span>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 sm:gap-1.5">
             {/* Previous button */}
             <button
               disabled={page === 0}
               onClick={() => setPage((p) => Math.max(0, p - 1))}
-              className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="Previous page"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -392,7 +467,7 @@ export default function HistoryPage({ onHistoryChange }) {
                 <button
                   key={pageIdx}
                   onClick={() => setPage(pageIdx)}
-                  className={`w-8 h-8 rounded-lg text-xs font-semibold transition-all ${
+                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-semibold transition-all ${
                     isActive
                       ? 'bg-emerald-500 text-slate-950 shadow-md font-bold'
                       : 'bg-slate-900 border border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white'
@@ -409,7 +484,7 @@ export default function HistoryPage({ onHistoryChange }) {
             <button
               disabled={(page + 1) * limit >= totalCount}
               onClick={() => setPage((p) => p + 1)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="Next page"
             >
               <ChevronRight className="w-4 h-4" />
@@ -422,14 +497,14 @@ export default function HistoryPage({ onHistoryChange }) {
       {selectedDetailItem && (
         <div 
           onClick={() => setSelectedDetailItem(null)}
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 xs:p-4 sm:p-6 overflow-y-auto"
         >
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-xl rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            className="relative w-full max-w-xl max-h-[92vh] flex flex-col rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200"
           >
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60 shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
                   <Eye className="w-4 h-4" />
@@ -450,10 +525,10 @@ export default function HistoryPage({ onHistoryChange }) {
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto">
               {/* Image Preview */}
               {getImageUrl(selectedDetailItem.image_path) ? (
-                <div className="w-full h-56 rounded-xl overflow-hidden border border-slate-800 bg-black relative flex items-center justify-center">
+                <div className="w-full h-48 sm:h-56 rounded-xl overflow-hidden border border-slate-800 bg-black relative flex items-center justify-center">
                   <img
                     src={getImageUrl(selectedDetailItem.image_path)}
                     alt={getFoodName(selectedDetailItem)}
@@ -466,7 +541,7 @@ export default function HistoryPage({ onHistoryChange }) {
               ) : null}
 
               {/* Assessment Stats Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
                 <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
                   <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Predicted Quality</span>
                   <span className="text-sm font-bold text-white mt-1 block">
@@ -491,7 +566,7 @@ export default function HistoryPage({ onHistoryChange }) {
                     {selectedDetailItem.model_name || 'VGG16'}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80 col-span-2">
+                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80 col-span-1 xs:col-span-2 sm:col-span-2">
                   <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Assessment Timestamp</span>
                   <span className="text-xs font-medium text-slate-300 mt-1 block">
                     {formatDateTime(selectedDetailItem.created_at)}
@@ -541,7 +616,7 @@ export default function HistoryPage({ onHistoryChange }) {
                   )}
                 </label>
                 {editingNoteId === selectedDetailItem.id ? (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col xs:flex-row gap-2">
                     <input
                       type="text"
                       value={noteText}
@@ -550,18 +625,20 @@ export default function HistoryPage({ onHistoryChange }) {
                       className="flex-1 px-3 py-1.5 bg-slate-950 border border-emerald-500/50 rounded-xl text-xs text-white focus:outline-none"
                       autoFocus
                     />
-                    <button
-                      onClick={() => handleSaveNote(selectedDetailItem.id)}
-                      className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold rounded-xl"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => setEditingNoteId(null)}
-                      className="px-3 py-1.5 bg-slate-800 text-slate-400 hover:text-white text-xs rounded-xl"
-                    >
-                      Cancel
-                    </button>
+                    <div className="flex gap-2 justify-end">
+                      <button
+                        onClick={() => handleSaveNote(selectedDetailItem.id)}
+                        className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold rounded-xl"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingNoteId(null)}
+                        className="px-3 py-1.5 bg-slate-800 text-slate-400 hover:text-white text-xs rounded-xl"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <p className="text-xs text-slate-400 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
@@ -572,7 +649,7 @@ export default function HistoryPage({ onHistoryChange }) {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-3.5 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
+            <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between shrink-0">
               <button
                 onClick={() => handleDeleteItem(selectedDetailItem.id)}
                 className="flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 transition-colors"

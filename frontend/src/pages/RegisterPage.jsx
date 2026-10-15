@@ -95,7 +95,7 @@ export default function RegisterPage({ onNavigateLogin, onRegisterSuccess, onCon
         </div>
 
         {/* Registration Card */}
-        <div className="p-7 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl space-y-5">
+        <div className="p-5 sm:p-7 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl space-y-5">
           {errorMessage && (
             <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5">
               <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />

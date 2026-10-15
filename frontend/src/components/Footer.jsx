@@ -92,14 +92,14 @@ export default function Footer({ onNavigate, healthStatus, modelsInfo }) {
           <p className="text-center sm:text-left">
             &copy; 2026 FoodQuality AI | Academic Project
           </p>
-          <div>
+          <div className="text-center sm:text-right">
             {isModelReady ? (
-              <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
+              <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium text-[11px] sm:text-xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 Model Ready &middot; Visual Quality Classifier
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 text-slate-400 font-medium">
+              <span className="inline-flex items-center gap-1.5 text-slate-400 font-medium text-[11px] sm:text-xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                 Model Standby &middot; Visual Quality Classifier
               </span>

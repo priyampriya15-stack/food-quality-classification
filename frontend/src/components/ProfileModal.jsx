@@ -98,14 +98,14 @@ export default function ProfileModal({ isOpen, onClose, onLogout }) {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 xs:p-4 sm:p-6 bg-slate-950/80 backdrop-blur-sm animate-fade-in overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby="profile-dialog-title"
       onClick={handleClose}
     >
       <div 
-        className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 sm:p-7 space-y-6 text-slate-100"
+        className="relative w-full max-w-lg max-h-[92vh] overflow-y-auto bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-4 sm:p-7 space-y-5 sm:space-y-6 text-slate-100 my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}

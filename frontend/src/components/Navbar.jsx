@@ -84,11 +84,11 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
             🥗
           </div>
           <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-lg font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-base sm:text-lg font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors truncate max-w-[130px] xs:max-w-none">
                 FoodQuality AI
               </span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold uppercase tracking-wider">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold uppercase tracking-wider shrink-0">
                 DL
               </span>
             </div>
@@ -203,7 +203,7 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
 
       {/* Responsive Tablet & Mobile Dropdown Drawer (< 1024px) */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-slate-800 bg-slate-950/95 backdrop-blur-xl px-4 pt-3 pb-5 space-y-2 shadow-2xl">
+        <div className="lg:hidden border-t border-slate-800 bg-slate-950/95 backdrop-blur-xl px-4 pt-3 pb-5 space-y-2 shadow-2xl max-h-[calc(100vh-4rem)] overflow-y-auto">
           {/* Navigation Links: Vertical stack matching reference drawer */}
           <div className="flex flex-col space-y-1">
             {navItems.map((item) => {

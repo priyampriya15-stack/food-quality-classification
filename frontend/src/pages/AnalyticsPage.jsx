@@ -161,21 +161,21 @@ export default function AnalyticsPage({ analyticsData, onRefresh, isLoading }) {
       {/* Two Main Charts side-by-side */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Quality Distribution Donut with Center Total */}
-        <div className="lg:col-span-5 p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm flex flex-col justify-between">
+        <div className="lg:col-span-5 p-4 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
           <div>
             <h3 className="text-base font-bold text-white mb-0.5">Quality Distribution</h3>
             <p className="text-xs text-slate-400">Ratio of produce freshness evaluations</p>
           </div>
 
-          <div className="relative h-60 w-full my-3 flex items-center justify-center">
+          <div className="relative h-60 w-full my-3 flex items-center justify-center min-w-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={showcasePieData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={65}
-                  outerRadius={95}
+                  innerRadius={55}
+                  outerRadius={85}
                   paddingAngle={3}
                   dataKey="value"
                 >
@@ -223,13 +223,13 @@ export default function AnalyticsPage({ analyticsData, onRefresh, isLoading }) {
         </div>
 
         {/* Analysis Trend Area Chart */}
-        <div className="lg:col-span-7 p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm flex flex-col justify-between">
+        <div className="lg:col-span-7 p-4 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
           <div>
             <h3 className="text-base font-bold text-white mb-0.5">Analysis Trend</h3>
             <p className="text-xs text-slate-400">Classification volume timeline</p>
           </div>
 
-          <div className="h-60 w-full my-3">
+          <div className="h-60 w-full my-3 min-w-0">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={trendData}>
                 <defs>

@@ -147,12 +147,12 @@ export default function AboutPage({ onNavigateTab, modelsInfo: propModelsInfo })
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent pointer-events-none" />
 
-              <div className="absolute bottom-3 inset-x-3 flex items-center justify-between">
+              <div className="absolute bottom-3 inset-x-3 flex flex-wrap items-center justify-between gap-1.5">
                 <span className="px-2.5 py-1 rounded-lg bg-slate-950/90 backdrop-blur-md border border-emerald-500/40 text-[11px] font-semibold text-emerald-300 flex items-center gap-1.5 shadow-lg">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   Fresh Produce &bull; Visual Analysis
                 </span>
-                <span className="text-[10px] text-slate-400 font-mono bg-slate-950/80 px-2 py-0.5 rounded border border-slate-800">
+                <span className="text-[10px] text-slate-400 font-mono bg-slate-950/80 px-2 py-0.5 rounded border border-slate-800 hidden xs:inline-block">
                   Binary Classifier (Fresh / Spoiled)
                 </span>
               </div>
@@ -162,7 +162,7 @@ export default function AboutPage({ onNavigateTab, modelsInfo: propModelsInfo })
       </div>
 
       {/* 2. Project Overview */}
-      <div className="p-6 sm:p-7 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 shadow-lg">
+      <div className="p-4 xs:p-5 sm:p-7 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 shadow-lg">
         <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm sm:text-base">
           <Layers className="w-5 h-5" />
           <span>Project Overview</span>
@@ -209,7 +209,7 @@ export default function AboutPage({ onNavigateTab, modelsInfo: propModelsInfo })
       </div>
 
       {/* 4. Model Information (Verified from Backend API) */}
-      <div className="p-6 sm:p-7 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 shadow-lg">
+      <div className="p-4 xs:p-5 sm:p-7 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 shadow-lg">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm sm:text-base">
             <Cpu className="w-5 h-5" />
