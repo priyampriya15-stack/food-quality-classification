@@ -13,7 +13,16 @@ import {
 } from 'lucide-react';
 import FoodSafetyDisclaimer from '../components/FoodSafetyDisclaimer';
 
+import aboutProduceImg from '../assets/about_produce.jpg';
+
 export default function AboutPage() {
+  const missionBenefits = [
+    { title: 'Accurate Predictions', desc: 'Calibrated per-class softmax probabilities', icon: CheckCircle2, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
+    { title: 'Real-time Analysis', desc: 'Fast inference under 50ms average latency', icon: Sparkles, color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' },
+    { title: 'Secure & Reliable', desc: 'Isolated user sessions and SQLite audit logs', icon: Layers, color: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
+    { title: 'Better Food Safety', desc: 'Non-destructive rapid screening assistance', icon: ShieldAlert, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
+  ];
+
   const techStack = [
     { category: 'Frontend', items: ['React 18', 'Vite', 'Tailwind CSS', 'Lucide React', 'Recharts', 'Axios'] },
     { category: 'Backend API', items: ['Python 3.14', 'FastAPI', 'Uvicorn', 'Pydantic v2', 'Pillow', 'NumPy'] },
@@ -23,18 +32,77 @@ export default function AboutPage() {
 
   return (
     <div className="space-y-10 pb-16 max-w-5xl mx-auto">
-      {/* Hero Header */}
-      <div>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-3">
-          <Sparkles className="w-3.5 h-3.5" />
-          Project Architecture &amp; Methodology
+      {/* Hero Showcase matching Reference Screenshot */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-2">
+        {/* Left Column: Mission Description */}
+        <div className="lg:col-span-6 space-y-4 text-center lg:text-left">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-semibold">
+            <span>Our Mission</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+            About FoodQuality AI
+          </h1>
+
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+            We are building AI-powered solutions for safer food, reduced waste, and a healthier future. Our platform uses deep learning and computer vision to automatically assess food quality with high accuracy and reliability.
+          </p>
+
+          <div className="pt-2">
+            <a
+              href="#architectures"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all shadow-lg shadow-emerald-500/25 cursor-pointer"
+            >
+              Learn More
+              <Sparkles className="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-          About FoodQuality AI
-        </h1>
-        <p className="text-slate-400 text-sm sm:text-base mt-2 leading-relaxed">
-          Automated Visual Quality Assessment of produce using deep convolutional neural networks and transfer learning.
-        </p>
+
+        {/* Right Column: Produce Showcase Image with glowing tag */}
+        <div className="lg:col-span-6 flex justify-center">
+          <div className="relative w-full max-w-md rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 shadow-2xl p-2 group">
+            <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+              <img
+                src={aboutProduceImg}
+                alt="Fresh produce assortment visual analysis"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
+
+              <div className="absolute bottom-3 inset-x-3 flex items-center justify-between">
+                <span className="px-2.5 py-1 rounded-lg bg-slate-950/90 backdrop-blur-md border border-emerald-500/40 text-[11px] font-semibold text-emerald-300 flex items-center gap-1.5 shadow-lg">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  Fresh Produce &bull; Visual Analysis
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono bg-slate-950/80 px-2 py-0.5 rounded">
+                  ImageNet Pretrained
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 4 Feature / Benefit Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
+        {missionBenefits.map((item, idx) => {
+          const Icon = item.icon;
+          return (
+            <div
+              key={idx}
+              className="p-4 sm:p-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors flex flex-col justify-between"
+            >
+              <div className={`w-9 h-9 rounded-xl border flex items-center justify-center mb-3 ${item.color}`}>
+                <Icon className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-xs sm:text-sm font-bold text-white mb-1">{item.title}</h3>
+                <p className="text-[11px] text-slate-400 leading-snug">{item.desc}</p>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Safety Notice */}

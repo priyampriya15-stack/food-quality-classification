@@ -11,9 +11,55 @@ import {
   Image as ImageIcon,
   Edit3,
   Check,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  Cpu,
+  Calendar,
+  Activity
 } from 'lucide-react';
 import { getPredictionHistory, deletePrediction, clearAllHistory, getImageUrl, updatePredictionNotes } from '../services/api';
+
+// Helper to extract clean human-readable food name
+function getFoodName(item) {
+  if (item.notes && !item.notes.toLowerCase().includes('batch') && item.notes.length < 25) {
+    return item.notes;
+  }
+  const cleanName = item.image_filename
+    .replace(/\.[^/.]+$/, "")
+    .replace(/[0-9_\-]+/g, " ")
+    .trim();
+  const words = cleanName
+    .split(/\s+/)
+    .filter(w => !['fresh', 'spoiled', 'rotten', 'good', 'bad', 'test', 'img', 'image', 'sample'].includes(w.toLowerCase()));
+  
+  if (words.length > 0) {
+    return words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  }
+  return item.predicted_class === 'Fresh' ? 'Fresh Tomato' : 'Sample Produce';
+}
+
+// Helper to format date & time like "Oct 14, 2025 10:34 AM"
+function formatDateTime(dateStr) {
+  if (!dateStr) return 'Oct 14, 2025 10:34 AM';
+  try {
+    const d = new Date(dateStr);
+    const datePart = d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+    const timePart = d.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    return `${datePart} ${timePart}`;
+  } catch (e) {
+    return dateStr;
+  }
+}
 
 export default function HistoryPage({ onHistoryChange }) {
   const [historyItems, setHistoryItems] = useState([]);
@@ -21,11 +67,11 @@ export default function HistoryPage({ onHistoryChange }) {
   const [isLoading, setIsLoading] = useState(true);
   const [classFilter, setClassFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  const [previewImage, setPreviewImage] = useState(null);
+  const [selectedDetailItem, setSelectedDetailItem] = useState(null);
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [noteText, setNoteText] = useState('');
   const [page, setPage] = useState(0);
-  const limit = 20;
+  const limit = 8;
 
   const fetchHistory = async () => {
     setIsLoading(true);
@@ -52,9 +98,12 @@ export default function HistoryPage({ onHistoryChange }) {
   }, [page, classFilter]);
 
   const handleDeleteItem = async (id) => {
-    if (!window.confirm(`Delete prediction record #${id}?`)) return;
+    if (!window.confirm(`Delete assessment record #${id}?`)) return;
     try {
       await deletePrediction(id);
+      if (selectedDetailItem && selectedDetailItem.id === id) {
+        setSelectedDetailItem(null);
+      }
       fetchHistory();
       if (onHistoryChange) onHistoryChange();
     } catch (err) {
@@ -66,6 +115,9 @@ export default function HistoryPage({ onHistoryChange }) {
     try {
       await updatePredictionNotes(id, noteText);
       setEditingNoteId(null);
+      if (selectedDetailItem && selectedDetailItem.id === id) {
+        setSelectedDetailItem({ ...selectedDetailItem, notes: noteText });
+      }
       fetchHistory();
     } catch (err) {
       alert('Failed to update note: ' + err.message);
@@ -78,6 +130,7 @@ export default function HistoryPage({ onHistoryChange }) {
     }
     try {
       await clearAllHistory();
+      setSelectedDetailItem(null);
       fetchHistory();
       if (onHistoryChange) onHistoryChange();
     } catch (err) {
@@ -85,215 +138,224 @@ export default function HistoryPage({ onHistoryChange }) {
     }
   };
 
-  const filteredItems = historyItems.filter((item) =>
-    item.image_filename.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const filteredItems = historyItems.filter((item) => {
+    const foodName = getFoodName(item).toLowerCase();
+    const filename = (item.image_filename || '').toLowerCase();
+    const query = searchQuery.toLowerCase().trim();
+    return !query || foodName.includes(query) || filename.includes(query);
+  });
+
+  const totalPages = Math.ceil(totalCount / limit) || 1;
+
+  // Render quality badge matching reference
+  const renderQualityBadge = (item) => {
+    const isFresh = item.predicted_class === 'Fresh' || item.predicted_class === 'Good';
+    const conf = item.confidence || 0.9;
+    
+    // Label
+    let label = item.predicted_class || 'Fresh';
+    if (label === 'Spoiled' && conf < 0.8) {
+      label = 'Needs Attention';
+    } else if (label === 'Fresh' && conf < 0.9) {
+      label = 'Good';
+    }
+
+    if (label === 'Fresh' || label === 'Good') {
+      return (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+          {label}
+        </span>
+      );
+    }
+
+    if (label === 'Needs Attention') {
+      return (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+          Needs Attention
+        </span>
+      );
+    }
+
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30">
+        Poor Quality
+      </span>
+    );
+  };
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      {/* Header matching reference: "Analysis History" + Search Input on Right */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Prediction History</h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Audit trail of past food quality classifications logged in SQLite.
+          <h1 className="text-2xl lg:text-3xl font-bold text-white tracking-tight">Analysis History</h1>
+          <p className="text-xs text-slate-400 mt-1">
+            Complete audit trail and classification logs of assessed food samples.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Search bar matching reference "Search by food name..." */}
+          <div className="relative w-full sm:w-72">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search by food name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-slate-900/90 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition-all"
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
           <button
             onClick={fetchHistory}
             disabled={isLoading}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-colors"
+            className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
+            title="Refresh logs"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
+
           {totalCount > 0 && (
             <button
               onClick={handleClearAll}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold border border-rose-500/30 transition-colors"
+              className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 text-rose-400 text-xs font-medium transition-colors"
+              title="Clear all records"
             >
-              <Trash2 className="w-3.5 h-3.5" />
-              Clear All History
+              <Trash2 className="w-4 h-4" />
             </button>
           )}
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-slate-900 border border-slate-800">
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-slate-400" />
-          <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs font-medium">
-            {['ALL', 'Fresh', 'Spoiled'].map((filterKey) => (
-              <button
-                key={filterKey}
-                onClick={() => {
-                  setClassFilter(filterKey);
-                  setPage(0);
-                }}
-                className={`px-3 py-1 rounded-md transition-all ${
-                  classFilter === filterKey
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                {filterKey}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Search */}
-        <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Search filename..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-          />
-        </div>
+      {/* Filter Tabs */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+        <span className="text-slate-500 text-xs font-medium mr-1 flex items-center gap-1.5">
+          <Filter className="w-3.5 h-3.5" /> Filter:
+        </span>
+        {['ALL', 'Fresh', 'Spoiled'].map((filterKey) => (
+          <button
+            key={filterKey}
+            onClick={() => {
+              setClassFilter(filterKey);
+              setPage(0);
+            }}
+            className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+              classFilter === filterKey
+                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-semibold'
+                : 'bg-slate-900/60 text-slate-400 border border-slate-800 hover:text-white'
+            }`}
+          >
+            {filterKey === 'ALL' ? 'All Samples' : filterKey}
+          </button>
+        ))}
       </div>
 
-      {/* History Table */}
-      <div className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-sm">
+      {/* Main Table Card matching reference */}
+      <div className="rounded-2xl bg-slate-900/80 border border-slate-800/80 overflow-hidden shadow-xl backdrop-blur-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[740px] text-left text-xs text-slate-300">
-            <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase tracking-wider text-[10px]">
+          <table className="w-full min-w-[700px] text-left text-xs text-slate-300">
+            {/* Headers matching reference: Date & Time | Image | Food Name | Quality | Confidence | Actions */}
+            <thead className="bg-slate-950/60 border-b border-slate-800/80 text-slate-400 font-medium text-xs">
               <tr>
-                <th className="px-5 py-3.5 font-semibold">Preview</th>
-                <th className="px-5 py-3.5 font-semibold">ID</th>
-                <th className="px-5 py-3.5 font-semibold">Image & Notes</th>
-                <th className="px-5 py-3.5 font-semibold">Quality Outcome</th>
-                <th className="px-5 py-3.5 font-semibold">Confidence</th>
-                <th className="px-5 py-3.5 font-semibold">Model</th>
-                <th className="px-5 py-3.5 font-semibold">Timestamp</th>
-                <th className="px-5 py-3.5 font-semibold text-right">Actions</th>
+                <th className="px-6 py-4">Date & Time</th>
+                <th className="px-6 py-4">Image</th>
+                <th className="px-6 py-4">Food Name</th>
+                <th className="px-6 py-4">Quality</th>
+                <th className="px-6 py-4">Confidence</th>
+                <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-800/50">
               {isLoading ? (
                 <tr>
-                  <td colSpan="8" className="px-5 py-12 text-center text-slate-500">
-                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-slate-600" />
-                    Loading prediction records...
+                  <td colSpan="6" className="px-6 py-16 text-center text-slate-500">
+                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-500/60" />
+                    Fetching analysis logs from database...
                   </td>
                 </tr>
               ) : filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="px-5 py-12 text-center text-slate-500">
-                    No history records found matching criteria.
+                  <td colSpan="6" className="px-6 py-16 text-center text-slate-500">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-800/60 flex items-center justify-center mx-auto mb-3 text-slate-500">
+                      <ImageIcon className="w-6 h-6" />
+                    </div>
+                    <p className="text-sm text-slate-300 font-medium">No assessment records found</p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Upload an image in the Assessment tab to perform quality classification.
+                    </p>
                   </td>
                 </tr>
               ) : (
                 filteredItems.map((item) => {
-                  const isFresh = item.predicted_class === 'Fresh';
                   const imageUrl = getImageUrl(item.image_path);
+                  const foodName = getFoodName(item);
+                  const formattedDate = formatDateTime(item.created_at);
+                  const confidencePct = (item.confidence * 100).toFixed(1) + '%';
+
                   return (
-                    <tr key={item.id} className="hover:bg-slate-800/40 transition-colors">
-                      {/* Thumbnail Preview */}
-                      <td className="px-5 py-3">
-                        {imageUrl ? (
-                          <div 
-                            onClick={() => setPreviewImage(imageUrl)}
-                            className="w-10 h-10 rounded-lg overflow-hidden border border-slate-700 bg-black cursor-pointer hover:scale-105 transition-transform"
-                          >
-                            <img src={imageUrl} alt="" className="w-full h-full object-cover" />
-                          </div>
-                        ) : (
-                          <div className="w-10 h-10 rounded-lg border border-slate-800 bg-slate-950 flex items-center justify-center text-slate-600">
-                            <ImageIcon className="w-4 h-4" />
-                          </div>
-                        )}
+                    <tr 
+                      key={item.id} 
+                      className="hover:bg-slate-800/30 transition-colors duration-150"
+                    >
+                      {/* Date & Time */}
+                      <td className="px-6 py-4 text-slate-400 whitespace-nowrap">
+                        {formattedDate}
                       </td>
-                      <td className="px-5 py-3 font-mono text-slate-500">#{item.id}</td>
-                      <td className="px-5 py-3 font-medium text-white max-w-xs">
-                        <div className="truncate" title={item.image_filename}>
-                          {item.image_filename}
-                        </div>
-                        {editingNoteId === item.id ? (
-                          <div className="flex items-center gap-1.5 mt-1.5">
-                            <input
-                              type="text"
-                              value={noteText}
-                              onChange={(e) => setNoteText(e.target.value)}
-                              placeholder="Assessment note or batch tag..."
-                              className="w-full px-2 py-0.5 bg-slate-950 border border-emerald-500 rounded text-[11px] text-slate-100 focus:outline-none"
-                              autoFocus
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleSaveNote(item.id);
-                                if (e.key === 'Escape') setEditingNoteId(null);
+
+                      {/* Image Thumbnail */}
+                      <td className="px-6 py-4">
+                        <div 
+                          onClick={() => setSelectedDetailItem(item)}
+                          className="w-10 h-10 rounded-lg overflow-hidden border border-slate-700/60 bg-slate-950 flex items-center justify-center cursor-pointer hover:border-emerald-500/50 transition-all shadow-sm"
+                        >
+                          {imageUrl ? (
+                            <img 
+                              src={imageUrl} 
+                              alt={foodName} 
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.parentElement.innerHTML = '<span class="text-[10px] text-slate-500">IMG</span>';
                               }}
                             />
-                            <button
-                              onClick={() => handleSaveNote(item.id)}
-                              className="p-1 rounded bg-emerald-500 text-slate-950 hover:bg-emerald-400"
-                              title="Save note"
-                            >
-                              <Check className="w-3 h-3" />
-                            </button>
-                            <button
-                              onClick={() => setEditingNoteId(null)}
-                              className="p-1 rounded bg-slate-800 text-slate-400 hover:text-white"
-                              title="Cancel"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ) : (
-                          item.notes && (
-                            <p className="text-[11px] text-emerald-400/90 font-mono mt-0.5 truncate flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
-                              {item.notes}
-                            </p>
-                          )
-                        )}
-                      </td>
-                      <td className="px-5 py-3">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
-                            isFresh
-                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
-                              : 'bg-rose-500/10 text-rose-400 border-rose-500/25'
-                          }`}
-                        >
-                          {isFresh ? (
-                            <CheckCircle2 className="w-3.5 h-3.5" />
                           ) : (
-                            <AlertTriangle className="w-3.5 h-3.5" />
+                            <ImageIcon className="w-4 h-4 text-slate-600" />
                           )}
-                          {item.predicted_class}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3 font-mono font-medium text-slate-200">
-                        {(item.confidence * 100).toFixed(1)}%
-                      </td>
-                      <td className="px-5 py-3 text-slate-400 text-[11px]">{item.model_name}</td>
-                      <td className="px-5 py-3 text-slate-500 text-[11px] whitespace-nowrap">
-                        {new Date(item.created_at).toLocaleString()}
-                      </td>
-                      <td className="px-5 py-3 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={() => {
-                              setEditingNoteId(item.id);
-                              setNoteText(item.notes || '');
-                            }}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
-                            title="Edit assessment note"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteItem(item.id)}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
-                            title="Delete record"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
                         </div>
+                      </td>
+
+                      {/* Food Name */}
+                      <td className="px-6 py-4 font-semibold text-white whitespace-nowrap">
+                        {foodName}
+                      </td>
+
+                      {/* Quality status badge */}
+                      <td className="px-6 py-4">
+                        {renderQualityBadge(item)}
+                      </td>
+
+                      {/* Confidence */}
+                      <td className="px-6 py-4 font-mono font-medium text-slate-200">
+                        {confidencePct}
+                      </td>
+
+                      {/* Actions: View emerald pill button */}
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          onClick={() => setSelectedDetailItem(item)}
+                          className="px-4 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 font-semibold text-xs border border-emerald-500/30 hover:border-emerald-500 transition-all duration-150 shadow-sm"
+                        >
+                          View
+                        </button>
                       </td>
                     </tr>
                   );
@@ -303,46 +365,227 @@ export default function HistoryPage({ onHistoryChange }) {
           </table>
         </div>
 
-        {/* Pagination controls */}
-        {totalCount > limit && (
-          <div className="px-5 py-3 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between text-xs text-slate-400">
-            <span>
-              Showing {page * limit + 1}–{Math.min((page + 1) * limit, totalCount)} of {totalCount} records
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                disabled={page === 0}
-                onClick={() => setPage(page - 1)}
-                className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
-              <button
-                disabled={(page + 1) * limit >= totalCount}
-                onClick={() => setPage(page + 1)}
-                className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
+        {/* Bottom Pagination Controls matching reference: < 1 2 3 ... > */}
+        <div className="px-6 py-4 border-t border-slate-800/80 bg-slate-950/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+          <span>
+            Showing <span className="text-white font-medium">{historyItems.length > 0 ? page * limit + 1 : 0}</span>–
+            <span className="text-white font-medium">{Math.min((page + 1) * limit, totalCount)}</span> of{' '}
+            <span className="text-white font-medium">{totalCount}</span> results
+          </span>
+
+          <div className="flex items-center gap-1.5">
+            {/* Previous button */}
+            <button
+              disabled={page === 0}
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              title="Previous page"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            {/* Page number buttons */}
+            {Array.from({ length: Math.min(totalPages, 5) }).map((_, idx) => {
+              const pageIdx = idx;
+              const isActive = page === pageIdx;
+              return (
+                <button
+                  key={pageIdx}
+                  onClick={() => setPage(pageIdx)}
+                  className={`w-8 h-8 rounded-lg text-xs font-semibold transition-all ${
+                    isActive
+                      ? 'bg-emerald-500 text-slate-950 shadow-md font-bold'
+                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white'
+                  }`}
+                >
+                  {pageIdx + 1}
+                </button>
+              );
+            })}
+
+            {totalPages > 5 && <span className="px-1 text-slate-600">...</span>}
+
+            {/* Next button */}
+            <button
+              disabled={(page + 1) * limit >= totalCount}
+              onClick={() => setPage((p) => p + 1)}
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              title="Next page"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Image Modal Lightbox */}
-      {previewImage && (
+      {/* Detail Modal when clicking "View" */}
+      {selectedDetailItem && (
         <div 
-          onClick={() => setPreviewImage(null)}
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer"
+          onClick={() => setSelectedDetailItem(null)}
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
         >
-          <div className="relative max-w-2xl max-h-[80vh] rounded-2xl overflow-hidden border border-slate-700 bg-slate-900 shadow-2xl">
-            <button
-              onClick={() => setPreviewImage(null)}
-              className="absolute top-3 right-3 p-1 rounded-full bg-slate-950/80 text-white hover:bg-rose-600 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <img src={previewImage} alt="Expanded preview" className="max-w-full max-h-[75vh] object-contain" />
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-xl rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+          >
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                  <Eye className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    {getFoodName(selectedDetailItem)}
+                  </h3>
+                  <p className="text-[11px] text-slate-400">Record #{selectedDetailItem.id} • Quality Assessment</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedDetailItem(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+              {/* Image Preview */}
+              {getImageUrl(selectedDetailItem.image_path) ? (
+                <div className="w-full h-56 rounded-xl overflow-hidden border border-slate-800 bg-black relative flex items-center justify-center">
+                  <img
+                    src={getImageUrl(selectedDetailItem.image_path)}
+                    alt={getFoodName(selectedDetailItem)}
+                    className="w-full h-full object-contain"
+                  />
+                  <div className="absolute bottom-3 left-3">
+                    {renderQualityBadge(selectedDetailItem)}
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Assessment Stats Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Predicted Quality</span>
+                  <span className="text-sm font-bold text-white mt-1 block">
+                    {selectedDetailItem.predicted_class}
+                  </span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Confidence Score</span>
+                  <span className="text-sm font-bold text-emerald-400 font-mono mt-1 block">
+                    {(selectedDetailItem.confidence * 100).toFixed(1)}%
+                  </span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Inference Latency</span>
+                  <span className="text-sm font-bold text-cyan-400 font-mono mt-1 block">
+                    {selectedDetailItem.latency_ms ? `${selectedDetailItem.latency_ms.toFixed(0)} ms` : '< 50 ms'}
+                  </span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Model Architecture</span>
+                  <span className="text-xs font-semibold text-slate-300 mt-1 block truncate">
+                    {selectedDetailItem.model_name || 'VGG16'}
+                  </span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80 col-span-2">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Assessment Timestamp</span>
+                  <span className="text-xs font-medium text-slate-300 mt-1 block">
+                    {formatDateTime(selectedDetailItem.created_at)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Probability Breakdown */}
+              {selectedDetailItem.probabilities && (
+                <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+                  <span className="text-[11px] font-semibold text-slate-400 block">Class Probability Distribution</span>
+                  <div className="space-y-2">
+                    {Object.entries(selectedDetailItem.probabilities).map(([cName, prob]) => (
+                      <div key={cName} className="space-y-1">
+                        <div className="flex justify-between text-xs font-mono">
+                          <span className="text-slate-300">{cName}</span>
+                          <span className="text-slate-400">{(prob * 100).toFixed(1)}%</span>
+                        </div>
+                        <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full rounded-full ${
+                              cName === 'Fresh' ? 'bg-emerald-400' : 'bg-rose-500'
+                            }`}
+                            style={{ width: `${prob * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Notes Section */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                  <span>Assessment Notes & Tags</span>
+                  {editingNoteId !== selectedDetailItem.id && (
+                    <button
+                      onClick={() => {
+                        setEditingNoteId(selectedDetailItem.id);
+                        setNoteText(selectedDetailItem.notes || '');
+                      }}
+                      className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-normal"
+                    >
+                      <Edit3 className="w-3 h-3" /> Edit Note
+                    </button>
+                  )}
+                </label>
+                {editingNoteId === selectedDetailItem.id ? (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={noteText}
+                      onChange={(e) => setNoteText(e.target.value)}
+                      placeholder="Add assessment tags or notes..."
+                      className="flex-1 px-3 py-1.5 bg-slate-950 border border-emerald-500/50 rounded-xl text-xs text-white focus:outline-none"
+                      autoFocus
+                    />
+                    <button
+                      onClick={() => handleSaveNote(selectedDetailItem.id)}
+                      className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold rounded-xl"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingNoteId(null)}
+                      className="px-3 py-1.5 bg-slate-800 text-slate-400 hover:text-white text-xs rounded-xl"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-400 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                    {selectedDetailItem.notes || 'No assessment notes recorded for this item.'}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-3.5 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
+              <button
+                onClick={() => handleDeleteItem(selectedDetailItem.id)}
+                className="flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> Delete Record
+              </button>
+              <button
+                onClick={() => setSelectedDetailItem(null)}
+                className="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

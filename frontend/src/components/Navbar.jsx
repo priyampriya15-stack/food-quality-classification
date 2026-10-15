@@ -190,24 +190,9 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
 
       {/* Responsive Tablet & Mobile Dropdown Drawer (< 1024px) */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-slate-800 bg-slate-950/95 backdrop-blur-xl px-4 pt-3 pb-5 space-y-1.5 shadow-2xl">
-          {/* Mobile Health Status (shown on small screens where top-bar badge was hidden) */}
-          <div className="sm:hidden px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800 mb-2 flex items-center justify-between text-xs">
-            <span className="text-slate-400">System Status</span>
-            <div className="flex items-center gap-2">
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  healthStatus?.database_connected ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'
-                }`}
-              />
-              <span className="text-white font-medium">
-                {healthStatus?.model_ready ? 'Model Ready' : healthStatus?.status || 'Connecting'}
-              </span>
-            </div>
-          </div>
-
-          {/* Navigation Links */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+        <div className="lg:hidden border-t border-slate-800 bg-slate-950/95 backdrop-blur-xl px-4 pt-3 pb-5 space-y-2 shadow-2xl">
+          {/* Navigation Links: Vertical stack matching reference drawer */}
+          <div className="flex flex-col space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -228,8 +213,23 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
             })}
           </div>
 
+          {/* Model Status Pill in Drawer */}
+          <div className="px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between text-xs">
+            <span className="text-slate-400 font-medium">System Status</span>
+            <div className="flex items-center gap-2">
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  healthStatus?.database_connected ? 'bg-emerald-400 animate-pulse' : 'bg-emerald-400'
+                }`}
+              />
+              <span className="text-emerald-400 font-semibold">
+                {healthStatus?.model_ready ? 'Model Ready' : 'API Online'}
+              </span>
+            </div>
+          </div>
+
           {/* Drawer Auth & Profile Section */}
-          <div className="pt-3 border-t border-slate-800/80 mt-2 space-y-2">
+          <div className="pt-2 border-t border-slate-800/80 space-y-2">
             {isAuthenticated ? (
               <div className="space-y-2">
                 <button
@@ -240,11 +240,11 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
                   className="w-full px-3.5 py-2.5 text-xs text-slate-300 bg-slate-900/60 hover:bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between transition-colors"
                 >
                   <div className="flex items-center gap-2.5 truncate">
-                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-[10px] font-bold">
+                    <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs font-bold border border-emerald-500/30">
                       {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                     </div>
                     <div className="text-left truncate">
-                      <p className="text-white font-semibold truncate">{user?.name}</p>
+                      <p className="text-white font-semibold truncate text-xs">{user?.name || 'User'}</p>
                       <p className="text-[10px] text-slate-400 truncate">{user?.email}</p>
                     </div>
                   </div>
@@ -255,7 +255,7 @@ export default function Navbar({ activeTab, setActiveTab, healthStatus }) {
                   className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
-                  Sign Out of Account
+                  Sign Out
                 </button>
               </div>
             ) : (

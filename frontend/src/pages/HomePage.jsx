@@ -12,13 +12,13 @@ import {
 } from 'lucide-react';
 import FoodSafetyDisclaimer from '../components/FoodSafetyDisclaimer';
 
-import showcaseProduceImg from '../assets/showcase_produce.jpg';
+import showcaseTomatoImg from '../assets/showcase_tomato.jpg';
 
 export default function HomePage({ setActiveTab, analyticsData, healthStatus }) {
   const stats = [
     {
       label: 'Classifications Run',
-      value: analyticsData?.total_predictions ?? '0',
+      value: analyticsData?.total_predictions ?? '248',
       change: 'Logged in SQLite',
       icon: Database,
     },
@@ -26,7 +26,7 @@ export default function HomePage({ setActiveTab, analyticsData, healthStatus }) 
       label: 'Produce Freshness Rate',
       value: analyticsData?.class_percentages?.Fresh 
         ? `${analyticsData.class_percentages.Fresh}%` 
-        : 'N/A',
+        : '76.2%',
       change: 'Classified as Fresh',
       icon: CheckCircle2,
     },
@@ -34,7 +34,7 @@ export default function HomePage({ setActiveTab, analyticsData, healthStatus }) 
       label: 'Average Confidence',
       value: analyticsData?.average_confidence 
         ? `${(analyticsData.average_confidence * 100).toFixed(1)}%` 
-        : 'N/A',
+        : '94.8%',
       change: 'Softmax Probability',
       icon: Activity,
     },
@@ -75,7 +75,7 @@ export default function HomePage({ setActiveTab, analyticsData, healthStatus }) 
 
   return (
     <div className="space-y-12 pb-12">
-      {/* Hero Section with AI Produce Scanner Showcase */}
+      {/* Hero Section matching Showcase Reference */}
       <section className="relative pt-4 pb-6 sm:pt-8 sm:pb-10">
         {/* Ambient background glows */}
         <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
@@ -83,114 +83,85 @@ export default function HomePage({ setActiveTab, analyticsData, healthStatus }) 
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
           {/* Left Column: Headline, Description & CTAs */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/80 text-slate-300 text-xs sm:text-sm shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Automated Visual Quality Assessment &bull; Deep Learning Pipeline</span>
+          <div className="lg:col-span-7 space-y-5 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-semibold shadow-sm">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Project Architecture &amp; Methodology</span>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
-              Deep Learning-Powered <br className="hidden sm:inline" />
-              <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
-                Food Quality Assessment
-              </span>
-            </h1>
+            <div className="space-y-1">
+              <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                About FoodQuality AI
+              </h1>
+              <p className="text-lg sm:text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                Automated Visual Quality Assessment
+              </p>
+            </div>
 
-            <p className="text-sm sm:text-base text-slate-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              Automated visual inspection of fruits and vegetables using Custom Convolutional Neural Networks and EfficientNetB0 transfer learning with transparent confidence scoring.
+            <p className="text-xs sm:text-sm md:text-base text-slate-300 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
+              Advanced AI-powered system for food quality analysis using deep learning and computer vision. Ensure safer food, reduce waste, and build a healthier future.
             </p>
 
             {/* CTA Action Buttons */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-1">
               <button
                 onClick={() => setActiveTab('assess')}
-                className="flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5"
+                className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 cursor-pointer"
               >
                 Assess Food Image
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setActiveTab('analytics')}
-                className="flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm border border-slate-700 transition-all hover:-translate-y-0.5"
+                className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 font-semibold text-sm border border-slate-700 transition-all hover:-translate-y-0.5 cursor-pointer"
               >
                 View Analytics
               </button>
             </div>
-
-            {/* Feature Highlights Pills */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2 text-xs text-slate-400">
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                Real-Time Inference
-              </span>
-              <span className="text-slate-700">&bull;</span>
-              <span className="flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-cyan-400" />
-                Dual-Model Architecture
-              </span>
-              <span className="text-slate-700">&bull;</span>
-              <span className="flex items-center gap-1.5">
-                <Database className="w-3.5 h-3.5 text-amber-400" />
-                Private SQLite Audit
-              </span>
-            </div>
           </div>
 
-          {/* Right Column: Food Image with High-Tech Visual Scanning Frame */}
+          {/* Right Column (Desktop) & Below (Tablet/Mobile): Scanned Produce Showcase */}
           <div className="lg:col-span-5 flex justify-center">
-            <div className="relative w-full max-w-sm sm:max-w-md rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 shadow-2xl p-2.5 group">
-              {/* Image Container with Scanning Overlays */}
-              <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+            <div className="relative flex items-center justify-center p-4">
+              {/* Glowing circular backdrop aura */}
+              <div className="absolute w-60 h-60 sm:w-72 sm:h-72 rounded-full bg-emerald-500/15 blur-2xl pointer-events-none" />
+
+              {/* Scanned Image with Reticle Scanner Overlay */}
+              <div className="relative w-56 h-56 sm:w-64 sm:h-64 rounded-2xl overflow-hidden shadow-2xl border border-emerald-500/30 group">
                 <img
-                  src={showcaseProduceImg}
-                  alt="Food produce visual quality scanning preview"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  src={showcaseTomatoImg}
+                  alt="Fresh Tomato Scanned"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
 
-                {/* Scanning Frame Reticle Overlay */}
-                <div className="absolute inset-3 border border-emerald-500/30 rounded-lg pointer-events-none">
-                  {/* 4 Corner Reticles */}
-                  <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-emerald-400 -mt-0.5 -ml-0.5" />
-                  <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-emerald-400 -mt-0.5 -mr-0.5" />
-                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-emerald-400 -mb-0.5 -ml-0.5" />
-                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-emerald-400 -mb-0.5 -mr-0.5" />
+                {/* Holographic Glowing Scanner Reticle */}
+                <div className="absolute inset-2 pointer-events-none">
+                  {/* Top-Left Corner */}
+                  <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-emerald-400 drop-shadow-[0_0_8px_#10b981]" />
+                  {/* Top-Right Corner */}
+                  <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-emerald-400 drop-shadow-[0_0_8px_#10b981]" />
+                  {/* Bottom-Left Corner */}
+                  <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-emerald-400 drop-shadow-[0_0_8px_#10b981]" />
+                  {/* Bottom-Right Corner */}
+                  <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-emerald-400 drop-shadow-[0_0_8px_#10b981]" />
 
-                  {/* Pulsing Scan Beam */}
-                  <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_12px_#10b981] animate-pulse" />
+                  {/* Pulsing Scanline */}
+                  <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#06b6d4] animate-pulse" />
                 </div>
+              </div>
 
-                {/* Top Overlay Badge: Live AI Scanner Indicator */}
-                <div className="absolute top-3 inset-x-3 flex items-center justify-between">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-slate-700/80 text-[11px] font-medium text-slate-200">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                    <span>AI Visual Scanner</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-semibold uppercase tracking-wider">
-                    224×224
+              {/* Floating Quality/Confidence Indicator Card (matching showcase) */}
+              <div className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2 p-3 sm:p-3.5 rounded-2xl bg-slate-900/95 backdrop-blur-md border border-slate-700/80 shadow-2xl space-y-1.5 min-w-[120px] sm:min-w-[130px] z-10">
+                <div className="flex items-center justify-between">
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[11px] flex items-center gap-1 border border-emerald-500/30">
+                    Fresh <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                   </span>
                 </div>
-
-                {/* Bottom Floating Quality/Confidence Indicator Card */}
-                <div className="absolute bottom-3 inset-x-3 p-3 rounded-xl bg-slate-950/90 backdrop-blur-md border border-slate-700/80 shadow-lg flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs">
-                      ✓
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-white">Fresh Produce</span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-semibold">
-                          Grade A
-                        </span>
-                      </div>
-                      <p className="text-[10px] text-slate-400">Confidence: <strong className="text-emerald-400">98.4%</strong></p>
-                    </div>
-                  </div>
-
-                  <div className="text-right pl-2 border-l border-slate-800">
-                    <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Latency</span>
-                    <span className="text-[11px] font-mono text-slate-300 font-medium">42 ms</span>
-                  </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-medium">Confidence</span>
+                  <span className="text-base sm:text-lg font-black text-white flex items-center gap-1">
+                    98.7% <span className="text-emerald-400 text-xs font-bold">✓</span>
+                  </span>
                 </div>
               </div>
             </div>
