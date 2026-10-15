@@ -293,7 +293,11 @@ function MainApp() {
       </main>
 
       {/* Professional Dashboard Footer */}
-      <Footer onNavigate={handleTabChange} />
+      <Footer 
+        onNavigate={handleTabChange} 
+        healthStatus={healthStatus} 
+        modelsInfo={modelsInfo} 
+      />
     </div>
   );
 }

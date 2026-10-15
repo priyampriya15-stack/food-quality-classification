@@ -1,7 +1,13 @@
 import React from 'react';
-import { Sparkles, Info } from 'lucide-react';
 
-export default function Footer({ onNavigate }) {
+export default function Footer({ onNavigate, healthStatus, modelsInfo }) {
+  // Check if active model or backend is loaded and ready
+  const isModelReady = Boolean(
+    modelsInfo?.is_loaded || 
+    healthStatus?.model_loaded || 
+    healthStatus?.status === 'ok'
+  );
+
   const navLinks = [
     { id: 'home', label: 'Home Overview' },
     { id: 'assess', label: 'Produce Assessment' },
@@ -11,105 +17,113 @@ export default function Footer({ onNavigate }) {
     { id: 'about', label: 'About & Methodology' },
   ];
 
-  const techStack = [
-    'React 18',
-    'Tailwind CSS',
-    'FastAPI',
-    'SQLite',
-    'TensorFlow / Keras 3',
-  ];
-
   return (
-    <footer className="mt-auto border-t border-slate-800/80 bg-slate-950 text-slate-400 text-xs">
+    <footer className="mt-auto border-t border-slate-900 bg-slate-950 text-slate-400 text-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
-          {/* Brand, Tagline, & Description */}
-          <div className="md:col-span-6 lg:col-span-5 space-y-3.5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-sm">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-base font-extrabold text-white tracking-tight flex items-center gap-1.5">
-                  FoodQuality <span className="text-emerald-400">AI</span>
-                </span>
-                <p className="text-[11px] font-medium text-emerald-400/90 -mt-0.5">
-                  Automated Visual Quality Assessment
-                </p>
-              </div>
+        {/* Three Columns on Desktop / Two on Tablet / Stack on Mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
+          
+          {/* Column 1 — Brand */}
+          <div className="space-y-2.5">
+            <div>
+              <h3 className="text-base font-bold text-white tracking-tight">
+                FoodQuality <span className="text-emerald-400">AI</span>
+              </h3>
+              <p className="text-xs font-medium text-emerald-400/90 mt-0.5">
+                Automated Visual Quality Assessment
+              </p>
             </div>
-
-            <p className="text-xs text-slate-400 leading-relaxed max-w-md">
-              Food Quality Classification Project — an AI-assisted visual screening system designed to classify food images based on learned freshness-related patterns.
+            <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
+              Food Quality Classification Project &mdash; an AI-assisted visual screening system designed to classify food images based on learned freshness-related patterns.
             </p>
-
-            {/* Technology Stack */}
-            <div className="pt-1">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
-                Technology Stack
-              </span>
-              <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-                {techStack.map((tech, idx) => (
-                  <span
-                    key={tech}
-                    className="px-2 py-0.5 rounded-md bg-slate-900 border border-slate-800 text-slate-300 font-mono text-[10px]"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
           </div>
 
-          {/* Navigation Quick Links */}
-          <div className="md:col-span-3 lg:col-span-3 space-y-3">
+          {/* Column 2 — Technology Stack */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+              Technology Stack
+            </h4>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              React 18 &middot; Tailwind CSS &middot; FastAPI &middot; SQLite &middot; TensorFlow / Keras 3
+            </p>
+            <ul className="space-y-1.5 text-xs text-slate-400 pt-1">
+              <li className="flex items-center gap-2">
+                <span className="w-1 h-1 rounded-full bg-emerald-400" />
+                <span>React 18</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1 h-1 rounded-full bg-emerald-400" />
+                <span>Tailwind CSS</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1 h-1 rounded-full bg-emerald-400" />
+                <span>FastAPI</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1 h-1 rounded-full bg-emerald-400" />
+                <span>SQLite</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1 h-1 rounded-full bg-emerald-400" />
+                <span>TensorFlow / Keras 3</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3 — Platform Navigation */}
+          <div className="space-y-3">
             <h4 className="text-xs font-bold text-white uppercase tracking-wider">
               Platform Navigation
             </h4>
-            <ul className="space-y-2 text-xs">
+            <ul className="space-y-1.5 text-xs">
               {navLinks.map((link) => (
                 <li key={link.id}>
                   <button
                     onClick={() => onNavigate && onNavigate(link.id)}
-                    className="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+                    className="text-slate-400 hover:text-emerald-400 transition-colors cursor-pointer text-left py-0.5"
                   >
-                    <span className="text-emerald-500/60 text-[10px]">&rsaquo;</span>
                     {link.label}
                   </button>
                 </li>
               ))}
             </ul>
           </div>
+        </div>
 
-          {/* Academic Disclaimer Section */}
-          <div className="md:col-span-3 lg:col-span-4 space-y-3">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <Info className="w-3.5 h-3.5 text-cyan-400" />
+        {/* Bottom Section: Divider + Academic Notice + Copyright */}
+        <div className="mt-8 sm:mt-10 pt-6 border-t border-slate-900 space-y-4">
+          <div className="space-y-1 text-xs text-slate-400">
+            <h5 className="font-semibold text-slate-300">
               Academic Screening Notice
-            </h4>
-            <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-400 text-xs space-y-1.5 leading-relaxed">
-              <p className="text-[11px] text-slate-300 font-medium">
-                For academic and assistive quality screening only. Visual predictions do not establish food safety or confirm contamination.
-              </p>
-              <p className="text-[10px] text-slate-500">
-                Visual inspection reflects machine-learned appearance patterns and must not be used as the sole basis for consumption decisions.
-              </p>
+            </h5>
+            <p className="leading-relaxed">
+              &ldquo;For academic and assistive quality screening only. Visual predictions do not establish food safety or confirm contamination.&rdquo;
+            </p>
+            <p className="text-slate-500 leading-relaxed">
+              &ldquo;Visual inspection reflects machine-learned appearance patterns and must not be used as the sole basis for consumption decisions.&rdquo;
+            </p>
+          </div>
+
+          <div className="pt-4 border-t border-slate-900/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+            <p className="text-center sm:text-left">
+              &copy; 2026 FoodQuality AI | Academic Project
+            </p>
+            <div>
+              {isModelReady ? (
+                <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  Model Ready &middot; Visual Quality Classifier
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 text-slate-400 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  Model Standby &middot; Visual Quality Classifier
+                </span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Thin Divider & Bottom Copyright Line */}
-        <div className="mt-8 sm:mt-10 pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <p className="text-center sm:text-left">
-            &copy; 2026 FoodQuality AI | Academic Project
-          </p>
-          <div className="flex items-center gap-3 text-[11px] text-slate-500">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              Model Ready &bull; Visual Quality Classifier
-            </span>
-          </div>
-        </div>
       </div>
     </footer>
   );
